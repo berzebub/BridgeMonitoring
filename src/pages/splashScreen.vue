@@ -72,7 +72,33 @@
 </template>
 
 <script>
-export default {};
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar, QSpinnerFacebook } from "quasar";
+
+export default {
+  setup() {
+    //   ROUTER
+    const router = useRouter();
+    // Loading Bar
+    const bar = ref(null);
+    // Quasar
+    const $q = useQuasar();
+
+    onMounted(() => {
+      //   trigger();
+      setTimeout(() => {
+        $q.loading.show({
+          spinner: QSpinnerFacebook,
+        });
+        setTimeout(() => {
+          $q.loading.hide();
+          router.push("/overAll");
+        }, 1000);
+      }, 2000);
+    });
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -86,5 +112,9 @@ export default {};
 
 .bg-drop {
   background-color: rgba(32, 37, 65, 0.2);
+}
+
+.ajax-color {
+  background-image: linear-gradient(to right, #de88f3, #a317c6);
 }
 </style>

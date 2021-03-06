@@ -10,8 +10,8 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: '/overAll', component: () => import('pages/overAll.vue'),
-        name : "overAll"
+        path: '/project', component: () => import('pages/project.vue'),
+        name : "project"
       },
       {
         path: '/monitor', component: () => import('pages/monitor.vue'),

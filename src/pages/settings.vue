@@ -1,12 +1,16 @@
 <template>
-  <q-page class="q-page-color relative-position">
-    <div style="width: 740px; height: 450px" class="row absolute-center">
-      <div style="width: 300px">
-        <q-img style="width: 99.5%" src="../../public/img/login.png"></q-img>
+  <q-page class="q-page-color relative-position flex flex-center">
+    <div style="width: 100%; max-width: 740px" class="row full-height">
+      <div style="max-width: 300px; width: 100%" v-if="$q.platform.is.desktop">
+        <q-img style="width: 100%" src="../../public/img/login.png"></q-img>
       </div>
       <div
-        class="col full-height"
-        style="background-color: #020305; border-radius: 0px 20px 20px 0px"
+        class="col"
+        :style="
+          $q.platform.is.desktop
+            ? 'background-color: #020305; border-radius: 0px 20px 20px 0px'
+            : null
+        "
       >
         <div align="center" class="text-white q-pt-xl q-pb-lg">
           <span class="font-36"> SMART BHMS </span>
@@ -14,10 +18,22 @@
           <span class="font-18"> Bridge Health Monitor System </span>
         </div>
         <div class="q-px-xl text-white">
-          <q-input class="no-padding" dark label="Username" v-model="username"></q-input>
+          <q-input
+            autofocus
+            class="no-padding"
+            dark
+            :placeholder="usernamePlaceholder"
+            label="Username"
+            v-model="username"
+          ></q-input>
 
           <div class="q-pt-md">
-            <q-input dark label="Password" v-model="password"></q-input>
+            <q-input
+              dark
+              label="Password"
+              :placeholder="passwordPlaceholder"
+              v-model="password"
+            ></q-input>
           </div>
         </div>
 

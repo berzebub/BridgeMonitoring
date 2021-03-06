@@ -3,7 +3,6 @@
     <q-drawer
       :mini="$q.platform.is.mobile ? true : false"
       v-model="leftDrawerOpen"
-      bordered
       :width="100"
       class="bg-blue-main"
       behavior="desktop"

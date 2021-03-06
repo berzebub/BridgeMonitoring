@@ -1,10 +1,15 @@
 
 const routes = [
   {
-    path: '/',
+    path: "",
+    component: () => import("pages/splashScreen.vue"),
+    name : "splashScreen"
+  },
+  {
+    path: '',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Index.vue') }
+      { path: '/overAll', component: () => import('pages/Index.vue') }
     ]
   },
 

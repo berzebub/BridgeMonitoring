@@ -32,17 +32,18 @@
       <q-footer elevated style="background-color: #202541">
         <q-toolbar
           style="background-color: #202541"
-          class="row items-center q-px-md q-py-lg"
+          class="flex flex-center"
+          :class="$q.platform.is.desktop ? 'q-py-lg' : 'q-pb-sm'"
         >
-          <div class="col-12">
-            <div class="row justify-center items-center">
-              <div class="col-xs-2 col-1" align="center">
+          <div class="">
+            <div class="flex-center flex">
+              <div :class="{ 'q-pt-sm': $q.platform.is.mobile }" align="center">
                 <q-img
-                  style="width: 100%; max-width: 70px"
+                  style="width: 100%; width: 70px"
                   src="../../public/img/logo.png"
                 ></q-img>
               </div>
-              <div class="col-xs-10 col-5 q-pl-md" align="left">
+              <div class="q-pl-md" align="left">
                 <div
                   class="text-white"
                   :class="{
@@ -68,31 +69,6 @@
       </q-footer>
     </div>
   </q-layout>
-
-  <!-- <div style="height: calc(100vh - 200px)" class="bg-splash"></div> -->
-
-  <!-- Footer -->
-  <!-- <div
-    style="min-height: 200px; background-color: #202541"
-    class="row items-center q-pa-md"
-  >
-    <div align="center" class="q-py-lg col-12">
-      <div class="row justify-center items-center">
-        <div class="col-md-2 col-xs-12">
-          <q-img style="width: 100px" src="../../public/img/logo.png"></q-img>
-        </div>
-        <div class="col-md-10" align="left">
-          <div class="text-white" style="font-size: 24px">Developed by</div>
-          <p class="text-white" style="font-size: 16px">
-            Center of excellence in structural dynamics and urban management
-          </p>
-          <p class="text-white" style="font-size: 16px">
-            King Mongkut’s University of Technology North Bangkok
-          </p>
-        </div>
-      </div>
-    </div>
-  </div> -->
 </template>
 
 <script>

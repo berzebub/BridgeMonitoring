@@ -1,5 +1,5 @@
 <template>
-  <q-page> </q-page>
+  <q-page class="q-page-color"> </q-page>
 </template>
 
 <script>

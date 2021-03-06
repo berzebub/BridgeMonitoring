@@ -12,8 +12,8 @@
           class="q-pt-md"
           clickable
           active-class="active-item"
-          :active="$route.name == 'overAll'"
-          to="/overAll"
+          :active="$route.name == 'project'"
+          to="/project"
         >
           <div align="center " style="width: 100%">
             <q-icon
@@ -22,7 +22,7 @@
               :size="$q.platform.is.desktop ? 'lg' : 'sm'"
             ></q-icon>
             <div class="text-white" :class="{ 'font-18': $q.platform.is.desktop }">
-              Overall
+              Project
             </div>
           </div>
         </q-item>

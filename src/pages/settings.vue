@@ -59,7 +59,7 @@
 
         <div class="q-pt-lg" align="center">
           <q-btn
-            dense=""
+            dense
             label="Login"
             style="width: 200px"
             class="font-16 text-white"

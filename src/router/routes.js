@@ -9,7 +9,18 @@ const routes = [
     path: '',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '/overAll', component: () => import('pages/Index.vue') }
+      {
+        path: '/overAll', component: () => import('pages/overAll.vue'),
+        name : "overAll"
+      },
+      {
+        path: '/monitor', component: () => import('pages/monitor.vue'),
+        name : "monitor"
+      },
+      {
+        path: '/settings', component: () => import('pages/settings.vue'),
+        name : "settings"
+      },
     ]
   },
 

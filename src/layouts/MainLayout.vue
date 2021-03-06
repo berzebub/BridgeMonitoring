@@ -1,43 +1,70 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
-
     <q-drawer
+      :mini="$q.platform.is.mobile ? true : false"
       v-model="leftDrawerOpen"
-      show-if-above
       bordered
-      class="bg-grey-1"
+      :width="100"
+      class="bg-blue-main"
+      behavior="desktop"
     >
       <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
+        <q-item
+          class="q-pt-md"
+          clickable
+          active-class="active-item"
+          :active="$route.name == 'overAll'"
+          to="/overAll"
         >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+          <div align="center " style="width: 100%">
+            <q-icon
+              name="fab fa-hubspot"
+              color="white"
+              :size="$q.platform.is.desktop ? 'lg' : 'sm'"
+            ></q-icon>
+            <div class="text-white" :class="{ 'font-18': $q.platform.is.desktop }">
+              Overall
+            </div>
+          </div>
+        </q-item>
+        <q-item
+          class="q-pt-md"
+          clickable
+          to="/monitor"
+          active-class="active-item"
+          :active="$route.name == 'monitor'"
+        >
+          <div align="center " style="width: 100%">
+            <q-icon
+              name="far fa-chart-bar"
+              class=""
+              color="white"
+              :size="$q.platform.is.desktop ? 'lg' : 'sm'"
+            ></q-icon>
+            <div class="text-white" :class="{ 'font-18': $q.platform.is.desktop }">
+              Monitor
+            </div>
+          </div>
+        </q-item>
+        <q-item
+          class="q-pt-md"
+          clickable
+          to="/settings"
+          active-class="active-item"
+          :active="$route.name == 'settings'"
+        >
+          <div align="center " style="width: 100%">
+            <q-icon
+              name="fas fa-cogs"
+              class=""
+              color="white"
+              :size="$q.platform.is.desktop ? 'lg' : 'sm'"
+            ></q-icon>
+            <div class="text-white" :class="{ 'font-18': $q.platform.is.desktop }">
+              Settings
+            </div>
+          </div>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -48,72 +75,21 @@
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref } from "vue";
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
-
-import { defineComponent, ref } from 'vue'
-
-export default defineComponent({
-  name: 'MainLayout',
-
-  components: {
-    EssentialLink
-  },
-
-  setup () {
-    const leftDrawerOpen = ref(false)
+export default {
+  name: "MainLayout",
+  setup() {
+    const leftDrawerOpen = ref(true);
 
     return {
-      essentialLinks: linksList,
       leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
-})
+    };
+  },
+};
 </script>
+<style>
+.active-item {
+  background-color: #00bfab;
+}
+</style>

@@ -93,7 +93,7 @@ export default {
         });
         setTimeout(() => {
           $q.loading.hide();
-          router.push("/overAll");
+          router.push("/project");
         }, 1000);
       }, 2000);
     });

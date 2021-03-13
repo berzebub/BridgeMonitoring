@@ -56,16 +56,55 @@
     <!-- END HEADER TOOLBAR -->
 
     <!-- MENU 1 Content -->
-    <q-card class="bg-transparent q-px-md" v-show="activeMenu == 1 || activeMenu == 0">
-      <q-card-section class="no-padding">
-        <div class="text-white q-pb-sm" style="font-size: 2vh">AC01 - Accelerator</div>
+    <q-card class="transparent" v-show="activeMenu == 1 || activeMenu == 0">
+      <q-card-section class="">
         <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
-          <div class="col-md-7 col-xs-12">
+          <!-- ด้านซ้าย -->
+          <div class="col-md self-start col-xs-12">
+            <div class="row q-pb-md">
+              <div>
+                <div class="text-white" style="font-size: 2vh">AC01 - Accelerator</div>
+              </div>
+
+              <div class="col q-pr-xs" align="right">
+                <q-btn
+                  class="bg-white"
+                  size="lg"
+                  round
+                  icon="fas fa-file-medical-alt"
+                ></q-btn>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <q-btn
+                  class="bg-white fit q-py-md"
+                  label="Duration : 24 hours"
+                  no-caps
+                ></q-btn>
+              </div>
+              <div class="col-1" style="width: 5px"></div>
+              <div class="col-3">
+                <q-btn class="bg-white fit q-py-sm" no-caps>
+                  <q-icon
+                    class="q-mx-sm text-red q-pa-sm"
+                    name="fas fa-exclamation-circle"
+                  ></q-icon>
+                  <span>Excess limit (6)</span>
+                </q-btn>
+              </div>
+            </div>
             <!-- GRAPH 1  -->
-            <div id="container" class="bg-white fit"></div>
+            <div id="container" class="fit q-mt-sm q-mb-md"></div>
           </div>
-          <div class="col-md-5 self-center col-xs-12 text-white">
-            <div class="q-pa-sm" align="center">
+
+          <div class="col-md-1" style="width: 30px"></div>
+          <!-- ด้านขวา -->
+          <div
+            class="col-md-4 col-xs-12"
+            :class="activeMenu == 0 ? 'self-center' : 'self-start'"
+          >
+            <div class="text-white" align="center" v-if="activeMenu == 0">
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
@@ -87,6 +126,16 @@
                 <div class="q-pl-md">ACC-Z เกิน Limit {{ overZAc }} ครั้ง</div>
               </div>
             </div>
+
+            <div v-if="activeMenu == 1" class="">
+              <q-table
+                square
+                :rows="rowsAc01"
+                :columns="colsAc01"
+                row-key="name"
+                :pagination="initialPagination"
+              />
+            </div>
           </div>
         </div>
       </q-card-section>
@@ -94,18 +143,59 @@
 
     <!-- MENU 2 Content -->
     <q-card
-      class="bg-transparent q-px-md q-pt-md"
+      class="transparent q-px-md q-pt-md"
       v-show="activeMenu == 2 || activeMenu == 0"
     >
       <q-card-section class="no-padding">
-        <div class="text-white q-pb-sm" style="font-size: 2vh">TM01 - Tilt Meter</div>
         <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
-          <div class="col-md-7 col-xs-12">
+          <div class="col-md col-xs-12">
+            <div class="row q-pb-md">
+              <div class="col">
+                <div class="text-white q-pb-sm" style="font-size: 2vh">
+                  TM01 - Tilt Meter
+                </div>
+              </div>
+              <div class="col q-pr-xs" align="right">
+                <q-btn
+                  class="bg-white"
+                  size="lg"
+                  round
+                  icon="fas fa-file-medical-alt"
+                ></q-btn>
+              </div>
+              <div></div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <q-btn
+                  class="bg-white fit q-py-md"
+                  label="25/12/2563 6:00  --->  26/12/2563  6:00"
+                  no-caps
+                ></q-btn>
+              </div>
+              <div class="col-1" style="width: 5px"></div>
+              <div class="col-3">
+                <q-btn class="bg-white fit q-py-sm" no-caps>
+                  <q-icon
+                    class="q-mx-sm text-red q-pa-sm"
+                    name="fas fa-exclamation-circle"
+                  ></q-icon>
+                  <span>Excess limit (6)</span>
+                </q-btn>
+              </div>
+            </div>
+
             <!-- GRAPH TM  -->
-            <div id="containerTM" class="bg-white fit"></div>
+            <div id="containerTM" class="bg-white fit q-mt-sm q-mb-md"></div>
           </div>
-          <div class="col-md-5 self-center col-xs-12 text-white">
-            <div class="q-pa-sm" align="center">
+
+          <div class="col-md-1" style="width: 30px"></div>
+
+          <div
+            class="col-md-4 col-xs-12 text-white"
+            :class="activeMenu == 0 ? 'self-center' : 'self-start'"
+          >
+            <div class="q-pa-sm" align="center" v-if="activeMenu == 0">
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
@@ -127,6 +217,16 @@
                 <div class="q-pl-md">ACC-Z เกิน Limit {{ overZTm }} ครั้ง</div>
               </div>
             </div>
+
+            <div v-if="activeMenu == 2" class="">
+              <q-table
+                square
+                :rows="rowsTm01"
+                :columns="colsTm01"
+                row-key="name"
+                :pagination="initialPagination"
+              />
+            </div>
           </div>
         </div>
       </q-card-section>
@@ -140,6 +240,87 @@ import { useQuasar } from "quasar";
 const Highcharts = require("highcharts");
 export default {
   setup() {
+    // AC-01
+    const colsAc01 = ref([
+      {
+        name: "date",
+        required: true,
+        field: "date",
+        label: "Date",
+        align: "left",
+        sortable: true,
+      },
+      {
+        name: "accx",
+        align: "center",
+        field: "accx",
+        label: "Acc-x",
+        sortable: true,
+      },
+      { name: "accy", align: "center", field: "accy", label: "Acc-y", sortable: true },
+      { name: "accz", align: "center", field: "accz", label: "Acc-z", sortable: true },
+    ]);
+
+    const rowsAc01 = ref([
+      {
+        date: "25/11/2563",
+        accx: 159,
+        accy: 6.0,
+        accz: 24,
+      },
+      {
+        date: "25/11/2563",
+        accx: 159,
+        accy: 6.0,
+        accz: 24,
+      },
+    ]);
+
+    const initialPagination = ref({
+      page: 1,
+      rowsPerPage: 20,
+      // rowsNumber: xx if getting data from a server
+    });
+
+    // TM-01
+    const colsTm01 = ref([
+      {
+        name: "date",
+        required: true,
+        field: "date",
+        label: "Date",
+        align: "left",
+        sortable: true,
+      },
+      {
+        name: "tiltx",
+        align: "center",
+        field: "tiltx",
+        label: "Tilt-X",
+        sortable: true,
+      },
+      {
+        name: "tilty",
+        align: "center",
+        field: "tilty",
+        label: "Tilt-Y",
+        sortable: true,
+      },
+    ]);
+
+    const rowsTm01 = ref([
+      {
+        date: "25/11/2563",
+        tiltx: 6.0,
+        tilty: 24,
+      },
+      {
+        date: "25/11/2563",
+        tiltx: 6.0,
+        tilty: 24,
+      },
+    ]);
+
     // Quasar
     const $q = useQuasar();
 
@@ -389,6 +570,11 @@ export default {
       overXTm,
       overYTm,
       overZTm,
+      colsAc01,
+      rowsAc01,
+      colsTm01,
+      rowsTm01,
+      initialPagination,
     };
   },
 };

@@ -2,7 +2,7 @@
   <q-page class="q-page-color">
     <!-- Header Toolbar -->
     <div class="row items-center q-px-md q-pt-md q-col-gutter-md">
-      <span style="font-size: 2vh" class="text-white"> Monitor </span>
+      <span style="font-size: 2vh" class="text-white">Monitor</span>
       <div class="q-px-md">
         <q-select
           dark
@@ -11,9 +11,8 @@
           emit-value
           v-model="monitorSelected"
           dense
-          standout=""
-        >
-        </q-select>
+          standout
+        ></q-select>
       </div>
       <q-space />
       <div class="q-gutter-sm">
@@ -41,13 +40,7 @@
           :class="activeMenu == 2 ? 'bg-teal' : 'bg-blue-main'"
           no-caps
         ></q-btn>
-        <q-btn
-          dense
-          label="Update in 2:00"
-          outline
-          class="text-white q-px-sm"
-          no-caps
-        ></q-btn>
+        <q-btn dense label="Update in 2:00" outline class="text-white q-px-sm" no-caps></q-btn>
       </div>
     </div>
     <div class="q-pa-md">
@@ -57,7 +50,7 @@
 
     <!-- MENU 1 Content -->
     <q-card class="transparent" v-show="activeMenu == 1 || activeMenu == 0">
-      <q-card-section class="">
+      <q-card-section class>
         <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
           <!-- ด้านซ้าย -->
           <div class="col-md self-start col-xs-12">
@@ -66,30 +59,18 @@
                 <div class="text-white" style="font-size: 2vh">AC01 - Accelerator</div>
               </div>
 
-              <div class="col q-pr-xs" align="right">
-                <q-btn
-                  class="bg-white"
-                  size="lg"
-                  round
-                  icon="fas fa-file-medical-alt"
-                ></q-btn>
+              <div class="col q-pr-xs" align="right" v-if="activeMenu == 1">
+                <q-btn class="bg-white" size="lg" round icon="fas fa-file-medical-alt"></q-btn>
               </div>
             </div>
-            <div class="row">
+            <div class="row" v-if="activeMenu == 1">
               <div class="col">
-                <q-btn
-                  class="bg-white fit q-py-md"
-                  label="Duration : 24 hours"
-                  no-caps
-                ></q-btn>
+                <q-btn class="bg-white fit q-py-md" label="Duration : 24 hours" no-caps></q-btn>
               </div>
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn class="bg-white fit q-py-sm" no-caps>
-                  <q-icon
-                    class="q-mx-sm text-red q-pa-sm"
-                    name="fas fa-exclamation-circle"
-                  ></q-icon>
+                  <q-icon class="q-mx-sm text-red q-pa-sm" name="fas fa-exclamation-circle"></q-icon>
                   <span>Excess limit (6)</span>
                 </q-btn>
               </div>
@@ -100,10 +81,7 @@
 
           <div class="col-md-1" style="width: 30px"></div>
           <!-- ด้านขวา -->
-          <div
-            class="col-md-4 col-xs-12"
-            :class="activeMenu == 0 ? 'self-center' : 'self-start'"
-          >
+          <div class="col-md-4 col-xs-12" :class="activeMenu == 0 ? 'self-center' : 'self-start'">
             <div class="text-white" align="center" v-if="activeMenu == 0">
               <div class="flex flex-center">
                 <div style="width: 80px">
@@ -127,10 +105,10 @@
               </div>
             </div>
 
-            <div v-if="activeMenu == 1" class="">
+            <div v-if="activeMenu == 1" class>
               <q-table
                 square
-                :rows="rowsAc01"
+                :rows="accelerometerData"
                 :columns="colsAc01"
                 row-key="name"
                 :pagination="initialPagination"
@@ -142,30 +120,20 @@
     </q-card>
 
     <!-- MENU 2 Content -->
-    <q-card
-      class="transparent q-px-md q-pt-md"
-      v-show="activeMenu == 2 || activeMenu == 0"
-    >
+    <q-card class="transparent q-px-md q-pt-md" v-show="activeMenu == 2 || activeMenu == 0">
       <q-card-section class="no-padding">
         <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
           <div class="col-md col-xs-12">
             <div class="row q-pb-md">
               <div class="col">
-                <div class="text-white q-pb-sm" style="font-size: 2vh">
-                  TM01 - Tilt Meter
-                </div>
+                <div class="text-white q-pb-sm" style="font-size: 2vh">TM01 - Tilt Meter</div>
               </div>
-              <div class="col q-pr-xs" align="right">
-                <q-btn
-                  class="bg-white"
-                  size="lg"
-                  round
-                  icon="fas fa-file-medical-alt"
-                ></q-btn>
+              <div class="col q-pr-xs" align="right" v-if="activeMenu == 2">
+                <q-btn class="bg-white" size="lg" round icon="fas fa-file-medical-alt"></q-btn>
               </div>
               <div></div>
             </div>
-            <div class="row">
+            <div class="row" v-if="activeMenu == 2">
               <div class="col">
                 <q-btn
                   class="bg-white fit q-py-md"
@@ -176,10 +144,7 @@
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn class="bg-white fit q-py-sm" no-caps>
-                  <q-icon
-                    class="q-mx-sm text-red q-pa-sm"
-                    name="fas fa-exclamation-circle"
-                  ></q-icon>
+                  <q-icon class="q-mx-sm text-red q-pa-sm" name="fas fa-exclamation-circle"></q-icon>
                   <span>Excess limit (6)</span>
                 </q-btn>
               </div>
@@ -218,7 +183,7 @@
               </div>
             </div>
 
-            <div v-if="activeMenu == 2" class="">
+            <div v-if="activeMenu == 2" class>
               <q-table
                 square
                 :rows="rowsTm01"
@@ -237,28 +202,41 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useQuasar } from "quasar";
+import { db } from "src/router";
 const Highcharts = require("highcharts");
 export default {
   setup() {
     // AC-01
     const colsAc01 = ref([
       {
-        name: "date",
+        name: "convertedDate",
         required: true,
-        field: "date",
+        field: "convertedDate",
         label: "Date",
         align: "left",
         sortable: true,
       },
       {
-        name: "accx",
+        name: "AC01_x",
         align: "center",
-        field: "accx",
+        field: "AC01_x",
         label: "Acc-x",
         sortable: true,
       },
-      { name: "accy", align: "center", field: "accy", label: "Acc-y", sortable: true },
-      { name: "accz", align: "center", field: "accz", label: "Acc-z", sortable: true },
+      {
+        name: "AC01_y",
+        align: "center",
+        field: "AC01_y",
+        label: "Acc-y",
+        sortable: true,
+      },
+      {
+        name: "AC01_z",
+        align: "center",
+        field: "AC01_z",
+        label: "Acc-z",
+        sortable: true,
+      },
     ]);
 
     const rowsAc01 = ref([
@@ -353,38 +331,22 @@ export default {
         return Math.random() * 1;
       }
 
-      const dataAccX = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+
+      const dataAccX = accelerometerData.value.map((x) => x.AC01_x);
+
 
       overXAc.value = dataAccX.filter((x) => x > limitation).length;
 
-      const dataAccY = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+      const dataAccY = accelerometerData.value.map((x) => x.AC01_y);
       overYAc.value = dataAccY.filter((x) => x > limitation).length;
 
-      const dataAccZ = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+      const dataAccZ = accelerometerData.value.map((x) => x.AC01_z);
       overZAc.value = dataAccZ.filter((x) => x > limitation).length;
 
       Highcharts.chart("container", {
         chart: {
           type: "spline",
-          height: $q.platform.is.desktop ? "35%" : "100%", // 16:9 ratio
+          height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
         },
         title: {
           align: "left",
@@ -392,12 +354,10 @@ export default {
           text:
             "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
         },
-        subtitle: {
-          text: "Source: WorldClimate.com",
-        },
-        xAxis: {
-          categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
-        },
+
+        // xAxis: {
+        //   categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
+        // },
         yAxis: {
           plotLines: [
             {
@@ -459,38 +419,20 @@ export default {
       }
       const limitation = 0.8;
 
-      const dataAccX = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+      const dataAccX = accelerometerData.value.map(x => x.max_TM01_x)
 
       overXTm.value = dataAccX.filter((x) => x > limitation).length;
 
-      const dataAccY = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+      const dataAccY = accelerometerData.value.map(x => x.max_TM01_y)
       overYTm.value = dataAccY.filter((x) => x > limitation).length;
 
-      const dataAccZ = [
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-        randomValue(),
-      ];
+      const dataAccZ =accelerometerData.value.map(x => x.max_TM01_z)
       overZTm.value = dataAccZ.filter((x) => x > limitation).length;
 
       Highcharts.chart("containerTM", {
         chart: {
           type: "spline",
-          height: $q.platform.is.desktop ? "35%" : "100%", // 16:9 ratio
+          height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
         },
         title: {
           align: "left",
@@ -498,12 +440,10 @@ export default {
           text:
             "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
         },
-        subtitle: {
-          text: "Source: WorldClimate.com",
-        },
-        xAxis: {
-          categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
-        },
+
+        // xAxis: {
+        //   categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
+        // },
         yAxis: {
           plotLines: [
             {
@@ -554,12 +494,65 @@ export default {
       });
     };
 
-    onMounted(() => {
-      randerGraphAC();
-      randerGraphTM();
+    const accelerometerData = ref([]);
+
+    const snapshot = db.collection("CESD").onSnapshot((doc) => {
+      let temp = [];
+      doc.forEach((element) => {
+        let convertedDate = timeConverter(element.data().createdTime.seconds);
+        temp.push({ ...element.data(), convertedDate: convertedDate });
+      });
+      temp = temp.sort((a, b) => b.createdTime.seconds - a.createdTime.seconds);
+      accelerometerData.value = temp;
+
+        randerGraphAC();
+      randerGraphTM();  
     });
 
+    function timeConverter(UNIX_timestamp) {
+      var a = new Date(UNIX_timestamp * 1000);
+      var months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      var year = a.getFullYear();
+      var month = months[a.getMonth()];
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      var sec = a.getSeconds();
+      var time =
+        date +
+        "/" +
+        Number(a.getMonth() + 1) +
+        "/" +
+        year +
+        " " +
+        hour +
+        ":" +
+        min +
+        ":" +
+        sec;
+      return time;
+    }
+
+    // onMounted(() => {
+          
+
+    // });
+
     return {
+      accelerometerData,
       monitorOptions,
       monitorSelected,
       activeMenu,
@@ -575,6 +568,7 @@ export default {
       colsTm01,
       rowsTm01,
       initialPagination,
+      timeConverter,
     };
   },
 };

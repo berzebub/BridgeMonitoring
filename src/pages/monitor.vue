@@ -174,8 +174,6 @@
                 </div>
                 <div class="q-pl-md">TILE-Y เกิน Limit {{ overYTm }} ครั้ง</div>
               </div>
-
-         
             </div>
 
             <div v-if="activeMenu == 2" class>
@@ -326,22 +324,43 @@ export default {
         return Math.random() * 1;
       }
 
-
-      const dataAccX = accelerometerData.value.map((x) => x.AC01_x);
-
+      let dataAccX = accelerometerData.value.map((x) => x.AC01_x);
 
       overXAc.value = dataAccX.filter((x) => x > limitation).length;
 
-      const dataAccY = accelerometerData.value.map((x) => x.AC01_y);
+      let dataAccY = accelerometerData.value.map((x) => x.AC01_y);
       overYAc.value = dataAccY.filter((x) => x > limitation).length;
 
-      const dataAccZ = accelerometerData.value.map((x) => x.AC01_z);
+      let dataAccZ = accelerometerData.value.map((x) => x.AC01_z);
       overZAc.value = dataAccZ.filter((x) => x > limitation).length;
 
       Highcharts.chart("container", {
         chart: {
           type: "spline",
           height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+
+          // events: {
+          //   load: function () {
+          //     // // set up the updating of the chart each second
+          //     // var series = this.series[0];
+          //     setInterval(function () {
+          //       // console.log("xxx");
+
+          //       dataAccX = accelerometerData.value.map((x) => x.AC01_x);
+          //       overXAc.value = dataAccX.filter((x) => x > limitation).length;
+
+          //       dataAccY = accelerometerData.value.map((x) => x.AC01_y);
+          //       overYAc.value = dataAccY.filter((x) => x > limitation).length;
+
+          //       dataAccZ = accelerometerData.value.map((x) => x.AC01_z);
+          //       overZAc.value = dataAccZ.filter((x) => x > limitation).length;
+
+          //       //     var x = (new Date()).getTime(), // current time
+          //       //         y = Math.random();
+          //       //     series.addPoint([x, y], true, true);
+          //     }, 1000);
+          //   },
+          // },
         },
         title: {
           align: "left",
@@ -417,14 +436,14 @@ export default {
       }
       const limitation = 0.25;
 
-      const dataAccX = accelerometerData.value.map(x => x.max_TM01_x)
+      const dataAccX = accelerometerData.value.map((x) => x.max_TM01_x);
 
       overXTm.value = dataAccX.filter((x) => x > limitation).length;
 
-      const dataAccY = accelerometerData.value.map(x => x.max_TM01_y)
+      const dataAccY = accelerometerData.value.map((x) => x.max_TM01_y);
       overYTm.value = dataAccY.filter((x) => x > limitation).length;
 
-      const dataAccZ =accelerometerData.value.map(x => x.max_TM01_z)
+      const dataAccZ = accelerometerData.value.map((x) => x.max_TM01_z);
       overZTm.value = dataAccZ.filter((x) => x > limitation).length;
 
       Highcharts.chart("containerTM", {
@@ -504,7 +523,7 @@ export default {
       accelerometerData.value = temp;
 
         randerGraphAC();
-      randerGraphTM();  
+        randerGraphTM()
     });
 
     function timeConverter(UNIX_timestamp) {
@@ -544,10 +563,9 @@ export default {
       return time;
     }
 
-    // onMounted(() => {
-          
+    onMounted(() => {
 
-    // });
+    });
 
     return {
       accelerometerData,

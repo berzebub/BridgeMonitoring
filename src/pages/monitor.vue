@@ -165,22 +165,17 @@
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
                 </div>
-                <div class="q-pl-md">ACC-X เกิน Limit {{ overXTm }} ครั้ง</div>
+                <div class="q-pl-md">TILE-X เกิน Limit {{ overXTm }} ครั้ง</div>
               </div>
 
               <div class="flex flex-center q-py-md">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #3c4dae"></div>
                 </div>
-                <div class="q-pl-md">ACC-Yเกิน Limit {{ overYTm }} ครั้ง</div>
+                <div class="q-pl-md">TILE-Y เกิน Limit {{ overYTm }} ครั้ง</div>
               </div>
 
-              <div class="flex flex-center">
-                <div style="width: 80px">
-                  <div style="width: 70px; height: 4px; background-color: #ff0000"></div>
-                </div>
-                <div class="q-pl-md">ACC-Z เกิน Limit {{ overZTm }} ครั้ง</div>
-              </div>
+         
             </div>
 
             <div v-if="activeMenu == 2" class>
@@ -355,9 +350,10 @@ export default {
             "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
         },
 
-        // xAxis: {
-        //   categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
-        // },
+        xAxis: {
+          // categories: ["6:00", "12:00", "18:00", "24:00", "6:00"],
+          // type : 'datetime'
+        },
         yAxis: {
           plotLines: [
             {
@@ -386,6 +382,8 @@ export default {
             marker: {
               enabled: false,
             },
+            //  pointInterval: 3600000, // one hour
+            // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
           },
         },
         series: [
@@ -417,7 +415,7 @@ export default {
       function randomValue() {
         return Math.random() * 1;
       }
-      const limitation = 0.8;
+      const limitation = 0.25;
 
       const dataAccX = accelerometerData.value.map(x => x.max_TM01_x)
 

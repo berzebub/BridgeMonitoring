@@ -20,7 +20,7 @@
         <q-img style="width: 100%" src="../../public/img/login.png"></q-img>
       </div>
       <div
-        class="col"
+        class="col relative-position"
         :style="
           $q.platform.is.desktop
             ? 'background-color: #020305; border-radius: 0px 20px 20px 0px'
@@ -38,7 +38,7 @@
             autofocus
             standout="bg-blue-grey-9"
             bg-color="white"
-            :placeholder="usernamePlaceholder"
+            placeholder="Enter your username"
             label="Username"
             v-model="username"
             dense
@@ -50,7 +50,7 @@
               standout="bg-blue-grey-9"
               bg-color="white"
               label="Password"
-              :placeholder="passwordPlaceholder"
+              placeholder="Enter your password"
               v-model="password"
               dense
             ></q-input>
@@ -64,9 +64,10 @@
             style="width: 200px"
             class="font-16 text-white"
             color="teal"
+            @click="login()"
           ></q-btn>
         </div>
-        <div class="text-white font-14" style="padding-top: 37px" align="center">
+        <div class="text-white font-14 absolute-bottom q-pb-sm" align="center">
           TSPK Inspection & Consultant Co.,ltd
         </div>
       </div>
@@ -76,12 +77,50 @@
 
 <script>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
+import axios from "axios";
 export default {
   setup() {
     const username = ref("");
     const password = ref("");
 
-    return { username, password };
+    const router = useRouter;
+    const $q = useQuasar;
+
+    const login = async () => {
+      console.log("login clicked");
+      const url = "http://localhost:5000/bhms-5e304/us-central1/bhms/login";
+
+      const postData = {
+        username: username.value,
+        password: password.value,
+      };
+
+      let res = await axios.post(url, postData);
+      const token = res.data;
+
+      firebase
+        .auth()
+        .signInWithCustomToken(token)
+        .then(function (response) {
+          console.log("signed in");
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+      // db.collection("CESD_Accounts")
+      //   .where("username", "==", username.value)
+      //   .where("password", "==", password.value)
+      //   .get()
+      //   .then((doc) => {
+      //     if (doc.size) {
+      //     }
+      //   });
+    };
+
+    return { username, password, login };
   },
 };
 </script>

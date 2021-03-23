@@ -6,6 +6,11 @@ const routes = [
     name : "splashScreen"
   },
   {
+    path: "/addData",
+    component: () => import("pages/addData.vue"),
+    name : "addData"
+  },
+  {
     path: '',
     component: () => import('layouts/MainLayout.vue'),
     children: [

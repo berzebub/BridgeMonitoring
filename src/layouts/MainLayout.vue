@@ -48,7 +48,7 @@
         <q-item
           class="q-pt-md"
           clickable
-          to="/settings"
+          @click="toSettings()"
           active-class="active-item"
           :active="$route.name == 'settings'"
         >
@@ -75,14 +75,31 @@
 
 <script>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "MainLayout",
   setup() {
     const leftDrawerOpen = ref(true);
+    const router = useRouter();
+
+    const toSettings = () => {
+      //  to="/settings"
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // console.log("logged in");
+          // User is signed in.
+          router.push("/boxSettings");
+        } else {
+          router.push("/settings");
+          // User is signed out.
+        }
+      });
+    };
 
     return {
       leftDrawerOpen,
+      toSettings,
     };
   },
 };

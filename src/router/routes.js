@@ -26,6 +26,10 @@ const routes = [
         path: '/settings', component: () => import('pages/settings.vue'),
         name : "settings"
       },
+      {
+        path: '/boxSettings', component: () => import('pages/boxSettings.vue'),
+        name : "boxSettings"
+      },
     ]
   },
 

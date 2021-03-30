@@ -64,6 +64,25 @@
             </div>
           </div>
         </q-item>
+
+        <q-item
+          clickable
+          class="absolute-bottom"
+          @click="signOut()"
+          v-if="isShowSignoutBtn"
+        >
+          <div align="center " style="width: 100%">
+            <q-icon
+              name="fas fa-sign-out-alt"
+              class=""
+              color="white"
+              :size="$q.platform.is.desktop ? 'lg' : 'sm'"
+            ></q-icon>
+            <div class="text-white" :class="{ 'font-18': $q.platform.is.desktop }">
+              Logout
+            </div>
+          </div>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -74,7 +93,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -97,9 +116,38 @@ export default {
       });
     };
 
+    const signOut = () => {
+      firebase
+        .auth()
+        .signOut()
+        .then(function () {
+          // Sign-out successful.
+          router.push("/");
+        })
+        .catch(function (error) {
+          // An error happened.
+        });
+    };
+
+    const isShowSignoutBtn = ref(false);
+
+    onMounted(() => {
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // User is signed in.
+          isShowSignoutBtn.value = true;
+        } else {
+          // User is signed out.
+          isShowSignoutBtn.value = false;
+        }
+      });
+    });
+
     return {
       leftDrawerOpen,
       toSettings,
+      signOut,
+      isShowSignoutBtn,
     };
   },
 };

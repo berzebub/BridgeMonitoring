@@ -85,12 +85,11 @@ export default {
     const username = ref("");
     const password = ref("");
 
-    const router = useRouter;
-    const $q = useQuasar;
+    const router = useRouter();
+    const $q = useQuasar();
 
     const login = async () => {
-      console.log("login clicked");
-      const url = "http://localhost:5000/bhms-5e304/us-central1/bhms/login";
+      const url = "https://us-central1-bhms-5e304.cloudfunctions.net/bhms/login";
 
       const postData = {
         username: username.value,

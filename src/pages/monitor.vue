@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-page-color" style="overflow:hidden">
+  <q-page class="q-page-color" style="overflow: hidden">
     <!-- Header Toolbar -->
     <div class="row items-center q-px-md q-pt-md q-col-gutter-md">
       <span style="font-size: 2vh" class="text-white">Monitor</span>
@@ -10,44 +10,56 @@
           map-options
           emit-value
           v-model="monitorSelected"
+          @update:model-value="findSensor()"
           dense
           standout
         ></q-select>
       </div>
       <q-space />
-      <div class="q-gutter-sm">
-        <q-btn
-          @click="changeMenu(0)"
+      <div class="q-gutter-sm row">
+        <q-select
+          dark
+          :options="sensorList"
+          map-options
+          emit-value
+          v-model="sensorSelected"
+          dense
+          standout
+          @update:model-value="loadRanderGraph()"
+        >
+        </q-select>
+        <!-- <q-btn
+          @click="changeMenu('OA')"
           dense
           label="Overall"
           class="text-white q-px-sm"
-          :class="activeMenu == 0 ? 'bg-teal' : 'bg-blue-main'"
+          :class="activeMenu == 'OA' ? 'bg-teal' : 'bg-blue-main'"
           no-caps
         ></q-btn>
         <q-btn
-          @click="changeMenu(1)"
+          @click="changeMenu('AC')"
           dense
           label="AC01"
           class="text-white q-px-sm"
-          :class="activeMenu == 1 ? 'bg-teal' : 'bg-blue-main'"
+          :class="activeMenu == 'AC' ? 'bg-teal' : 'bg-blue-main'"
           no-caps
         ></q-btn>
         <q-btn
-          @click="changeMenu(2)"
+          @click="changeMenu('TM')"
           dense
           label="TM01"
           class="text-white q-px-sm"
-          :class="activeMenu == 2 ? 'bg-teal' : 'bg-blue-main'"
+          :class="activeMenu == 'TM' ? 'bg-teal' : 'bg-blue-main'"
           no-caps
         ></q-btn>
         <q-btn
-          @click="changeMenu(3)"
+          @click="changeMenu('SG')"
           dense
           label="SG"
           class="text-white q-px-sm"
-          :class="activeMenu == 3 ? 'bg-teal' : 'bg-blue-main'"
+          :class="activeMenu == 'SG' ? 'bg-teal' : 'bg-blue-main'"
           no-caps
-        ></q-btn>
+        ></q-btn> -->
         <q-btn
           v-if="isLoadedData"
           dense
@@ -66,23 +78,35 @@
     <!-- MENU 1 AC Content -->
     <q-card
       class="transparent q-px-md"
-      v-show="activeMenu == 1 || activeMenu == 0"
-      :class="{'q-pt-lg' : activeMenu == 0}"
+      v-show="activeMenu == 'AC' || activeMenu == 'OA'"
+      :class="{ 'q-pt-lg': activeMenu == 'OA' }"
     >
       <q-card-section class="no-padding">
-        <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
+        <div
+          class="row"
+          :class="{ 'q-pb-lg': $q.platform.is.desktop }"
+          v-for="(item, index) in ACList"
+          v-show="activeMenu == 'OA' || (activeMenu == 'AC' && sensorActive == item)"
+        >
           <!-- ด้านซ้าย -->
           <div class="col-md self-start col-xs-12">
             <div class="row q-pb-md">
               <div>
-                <div class="text-white" style="font-size: 2vh">AC01 - Accelerator</div>
+                <div class="text-white" style="font-size: 2vh">
+                  AC0{{ item }} - Accelerator
+                </div>
               </div>
 
-              <div class="col q-pr-xs" align="right" v-if="activeMenu == 1">
-                <q-btn class="bg-white" size="lg" round icon="fas fa-file-medical-alt"></q-btn>
+              <div class="col q-pr-xs" align="right" v-if="activeMenu == 'AC'">
+                <q-btn
+                  class="bg-white"
+                  size="lg"
+                  round
+                  icon="fas fa-file-medical-alt"
+                ></q-btn>
               </div>
             </div>
-            <div class="row" v-if="activeMenu == 1">
+            <div class="row" v-if="activeMenu == 'AC'">
               <div class="col">
                 <q-btn
                   @click="settings(1)"
@@ -95,36 +119,42 @@
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn
-                  v-if="overXAc+overYAc+overZAc > 0"
+                  v-if="overXAc + overYAc + overZAc > 0"
                   class="bg-white fit q-py-sm"
                   no-caps
                   @click="showExceedData(1)"
                   dense
                 >
-                  <q-icon class="q-mx-sm text-red q-pa-sm" name="fas fa-exclamation-circle"></q-icon>
+                  <q-icon
+                    class="q-mx-sm text-red q-pa-sm"
+                    name="fas fa-exclamation-circle"
+                  ></q-icon>
                   <span>
-                    <span class=''>
-                    Excess limit 
-                    </span>
-                    ({{ overXAc+
-                    overYAc+
-                    overZAc }})
+                    <span class=""> Excess limit </span>
+                    ({{ overXAc + overYAc + overZAc }})
                   </span>
                 </q-btn>
 
                 <q-btn class="bg-white fit q-py-sm" v-else>
-                  <q-icon class="q-mx-sm text-green q-pa-sm" name="fas fa-check-circle"></q-icon>No exceed limit
+                  <q-icon
+                    class="q-mx-sm text-green q-pa-sm"
+                    name="fas fa-check-circle"
+                  ></q-icon
+                  >No exceed limit
                 </q-btn>
               </div>
             </div>
             <!-- GRAPH 1  -->
-            <div id="container" class="fit q-mt-sm"></div>
+            <div :id="`container-${item}`" class="fit q-mt-sm"></div>
           </div>
 
           <div class="col-md-1" style="width: 30px"></div>
           <!-- ด้านขวา -->
-          <div class="col-md-4 col-xs-12" :class="activeMenu == 0 ? 'self-center' : 'self-start'">
-            <div class="text-white" align="center" v-if="activeMenu == 0">
+          <div
+            class="col-md-4 col-xs-12"
+            :class="activeMenu == 'OA' ? 'self-center' : 'self-start'"
+          >
+            <div class="text-white" align="center" v-if="activeMenu == 'OA'">
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
@@ -147,7 +177,7 @@
               </div>
             </div>
 
-            <div v-if="activeMenu == 1" class>
+            <div v-if="activeMenu == 'AC'" class>
               <q-table
                 :pagination="initialPagination"
                 :rows="graphData"
@@ -156,10 +186,18 @@
               >
                 <template v-slot:body="props">
                   <q-tr :props="props">
-                    <q-td key="convertedDate" :props="props">{{ props.row.convertedDate }}</q-td>
-                    <q-td key="AC01_x" :props="props">{{ props.row.AC01_x.toFixed(2) }}</q-td>
-                    <q-td key="AC01_y" :props="props">{{ props.row.AC01_y.toFixed(2) }}</q-td>
-                    <q-td key="AC01_z" :props="props">{{ props.row.AC01_z.toFixed(2) }}</q-td>
+                    <q-td key="convertedDate" :props="props">{{
+                      props.row.convertedDate
+                    }}</q-td>
+                    <q-td key="AC01_x" :props="props">{{
+                      props.row.AC01_x.toFixed(2)
+                    }}</q-td>
+                    <q-td key="AC01_y" :props="props">{{
+                      props.row.AC01_y.toFixed(2)
+                    }}</q-td>
+                    <q-td key="AC01_z" :props="props">{{
+                      props.row.AC01_z.toFixed(2)
+                    }}</q-td>
                   </q-tr>
                 </template>
               </q-table>
@@ -172,22 +210,34 @@
     <!-- MENU 2 TM Content -->
     <q-card
       class="transparent q-px-md"
-      v-show="activeMenu == 2 || activeMenu == 0"
-      :class="{'q-pt-lg' : activeMenu == 0}"
+      v-show="activeMenu == 'TM' || activeMenu == 'OA'"
+      :class="{ 'q-pt-lg': activeMenu == 'OA' }"
     >
       <q-card-section class="no-padding">
-        <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
+        <div
+          class="row"
+          :class="{ 'q-pb-lg': $q.platform.is.desktop }"
+          v-for="(item, index) in TMList"
+          v-show="activeMenu == 'OA' || (activeMenu == 'TM' && sensorActive == item)"
+        >
           <div class="col-md col-xs-12">
             <div class="row q-pb-md">
               <div class="col">
-                <div class="text-white q-pb-sm" style="font-size: 2vh">TM01 - Tilt Meter</div>
+                <div class="text-white q-pb-sm" style="font-size: 2vh">
+                  TM0{{ item }} - Tilt Meter
+                </div>
               </div>
-              <div class="col q-pr-xs" align="right" v-if="activeMenu == 2">
-                <q-btn class="bg-white" size="lg" round icon="fas fa-file-medical-alt"></q-btn>
+              <div class="col q-pr-xs" align="right" v-if="activeMenu == 'TM'">
+                <q-btn
+                  class="bg-white"
+                  size="lg"
+                  round
+                  icon="fas fa-file-medical-alt"
+                ></q-btn>
               </div>
               <div></div>
             </div>
-            <div class="row" v-if="activeMenu == 2">
+            <div class="row" v-if="activeMenu == 'TM'">
               <div class="col">
                 <q-btn
                   @click="settings(2)"
@@ -204,31 +254,34 @@
                   no-caps
                   @click="showExceedData(2)"
                 >
-                  <q-icon class="q-mx-sm text-red q-pa-sm" name="fas fa-exclamation-circle"></q-icon>
-                  <span>
-                    Excess limit ({{ overXTm +
-                    overYTm }})
-                  </span>
+                  <q-icon
+                    class="q-mx-sm text-red q-pa-sm"
+                    name="fas fa-exclamation-circle"
+                  ></q-icon>
+                  <span> Excess limit ({{ overXTm + overYTm }}) </span>
                 </q-btn>
 
                 <q-btn v-else class="bg-white fit q-py-sm" no-caps>
-                  <q-icon class="q-mx-sm text-green q-pa-sm" name="fas fa-check-circle"></q-icon>
+                  <q-icon
+                    class="q-mx-sm text-green q-pa-sm"
+                    name="fas fa-check-circle"
+                  ></q-icon>
                   <span>No exceed limit</span>
                 </q-btn>
               </div>
             </div>
 
             <!-- GRAPH TM  -->
-            <div id="containerTM" class="fit q-mt-sm"></div>
+            <div :id="`containerTM-${item}`" class="fit q-mt-sm"></div>
           </div>
 
           <div class="col-md-1" style="width: 30px"></div>
 
           <div
             class="col-md-4 col-xs-12 text-white"
-            :class="activeMenu == 0 ? 'self-center' : 'self-start'"
+            :class="activeMenu == 'OA' ? 'self-center' : 'self-start'"
           >
-            <div class="q-pa-sm" align="center" v-if="activeMenu == 0">
+            <div class="q-pa-sm" align="center" v-if="activeMenu == 'OA'">
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
@@ -244,7 +297,7 @@
               </div>
             </div>
 
-            <div v-if="activeMenu == 2" class>
+            <div v-if="activeMenu == 'TM'" class>
               <q-table
                 :pagination="initialPagination"
                 :rows="graphData"
@@ -253,9 +306,15 @@
               >
                 <template v-slot:body="props">
                   <q-tr :props="props">
-                    <q-td key="convertedDate" :props="props">{{ props.row.convertedDate }}</q-td>
-                    <q-td key="max_TM01_x" :props="props">{{ props.row.max_TM01_x.toFixed(2) }}</q-td>
-                    <q-td key="max_TM01_y" :props="props">{{ props.row.max_TM01_y.toFixed(2) }}</q-td>
+                    <q-td key="convertedDate" :props="props">{{
+                      props.row.convertedDate
+                    }}</q-td>
+                    <q-td key="max_TM01_x" :props="props">{{
+                      props.row.max_TM01_x.toFixed(2)
+                    }}</q-td>
+                    <q-td key="max_TM01_y" :props="props">{{
+                      props.row.max_TM01_y.toFixed(2)
+                    }}</q-td>
                   </q-tr>
                 </template>
               </q-table>
@@ -268,22 +327,34 @@
     <!-- MENU 3 SG Content -->
     <q-card
       class="transparent q-px-md"
-      v-show="activeMenu == 3 || activeMenu == 0"
-      :class="{'q-pt-lg' : activeMenu == 0}"
+      v-show="activeMenu == 'SG' || activeMenu == 'OA'"
+      :class="{ 'q-pt-lg': activeMenu == 'OA' }"
     >
       <q-card-section class="no-padding">
-        <div class="row" :class="{ 'q-pb-lg': $q.platform.is.desktop }">
+        <div
+          class="row"
+          :class="{ 'q-pb-lg': $q.platform.is.desktop }"
+          v-for="(item, index) in SGList"
+          v-show="activeMenu == 'OA' || (activeMenu == 'SG' && sensorActive == item)"
+        >
           <div class="col-md col-xs-12">
             <div class="row q-pb-md">
               <div class="col">
-                <div class="text-white q-pb-sm" style="font-size: 2vh">SG - Strain sensor</div>
+                <div class="text-white q-pb-sm" style="font-size: 2vh">
+                  SG0{{ item }} - Strain sensor
+                </div>
               </div>
-              <div class="col q-pr-xs" align="right" v-if="activeMenu == 3">
-                <q-btn class="bg-white" size="lg" round icon="fas fa-file-medical-alt"></q-btn>
+              <div class="col q-pr-xs" align="right" v-if="activeMenu == 'SG'">
+                <q-btn
+                  class="bg-white"
+                  size="lg"
+                  round
+                  icon="fas fa-file-medical-alt"
+                ></q-btn>
               </div>
               <div></div>
             </div>
-            <div class="row" v-if="activeMenu == 3">
+            <div class="row" v-if="activeMenu == 'SG'">
               <div class="col">
                 <q-btn
                   @click="settings(3)"
@@ -300,64 +371,62 @@
                   no-caps
                   @click="showExceedData(3)"
                 >
-                  <q-icon class="q-mx-sm text-red q-pa-sm" name="fas fa-exclamation-circle"></q-icon>
+                  <q-icon
+                    class="q-mx-sm text-red q-pa-sm"
+                    name="fas fa-exclamation-circle"
+                  ></q-icon>
                   <span>
-                    Excess limit ({{ overStrain1+
-                    overStrain2+
-                    overStrain3 }})
+                    Excess limit ({{ overStrain1 + overStrain2 + overStrain3 }})
                   </span>
                 </q-btn>
                 <q-btn v-else class="bg-white fit q-py-sm" no-caps>
-                  <q-icon class="q-mx-sm text-green q-pa-sm" name="fas fa-check-circle"></q-icon>
+                  <q-icon
+                    class="q-mx-sm text-green q-pa-sm"
+                    name="fas fa-check-circle"
+                  ></q-icon>
                   <span>No exceed limit</span>
                 </q-btn>
               </div>
             </div>
 
             <!-- GRAPH SG  -->
-            <div id="containerSG" class="fit q-mt-sm"></div>
+            <div :id="`containerSG-${item}`" class="fit q-mt-sm"></div>
           </div>
 
           <div class="col-md-1" style="width: 30px"></div>
 
           <div
             class="col-md-4 col-xs-12 text-white"
-            :class="activeMenu == 0 ? 'self-center' : 'self-start'"
+            :class="activeMenu == 'OA' ? 'self-center' : 'self-start'"
           >
-            <div class="q-pa-sm" align="center" v-if="activeMenu == 0">
+            <div class="q-pa-sm" align="center" v-if="activeMenu == 'OA'">
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
                 </div>
-                <div
-                  class="q-pl-md"
-                  align="left"
-                  style="width:170px"
-                >Strain1 เกิน Limit {{ overStrain1 }} ครั้ง</div>
+                <div class="q-pl-md" align="left" style="width: 170px">
+                  Strain1 เกิน Limit {{ overStrain1 }} ครั้ง
+                </div>
               </div>
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #3c4dae"></div>
                 </div>
-                <div
-                  class="q-pl-md"
-                  align="left"
-                  style="width:170px"
-                >Strain2 เกิน Limit {{ overStrain2 }} ครั้ง</div>
+                <div class="q-pl-md" align="left" style="width: 170px">
+                  Strain2 เกิน Limit {{ overStrain2 }} ครั้ง
+                </div>
               </div>
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #ff0000"></div>
                 </div>
-                <div
-                  class="q-pl-md"
-                  align="left"
-                  style="width:170px"
-                >Strain3 เกิน Limit {{ overStrain3 }} ครั้ง</div>
+                <div class="q-pl-md" align="left" style="width: 170px">
+                  Strain3 เกิน Limit {{ overStrain3 }} ครั้ง
+                </div>
               </div>
             </div>
 
-            <div v-if="activeMenu == 3">
+            <div v-if="activeMenu == 'SG'">
               <q-table
                 :pagination="initialPagination"
                 :rows="graphData"
@@ -366,10 +435,18 @@
               >
                 <template v-slot:body="props">
                   <q-tr :props="props">
-                    <q-td key="convertedDate" :props="props">{{ props.row.convertedDate }}</q-td>
-                    <q-td key="max_SG01" :props="props">{{ props.row.max_SG01.toFixed(2) }}</q-td>
-                    <q-td key="max_SG02" :props="props">{{ props.row.max_SG02.toFixed(2) }}</q-td>
-                    <q-td key="max_SG03" :props="props">{{ props.row.max_SG03.toFixed(2) }}</q-td>
+                    <q-td key="convertedDate" :props="props">{{
+                      props.row.convertedDate
+                    }}</q-td>
+                    <q-td key="max_SG01" :props="props">{{
+                      props.row.max_SG01.toFixed(2)
+                    }}</q-td>
+                    <q-td key="max_SG02" :props="props">{{
+                      props.row.max_SG02.toFixed(2)
+                    }}</q-td>
+                    <q-td key="max_SG03" :props="props">{{
+                      props.row.max_SG03.toFixed(2)
+                    }}</q-td>
                   </q-tr>
                 </template>
               </q-table>
@@ -380,35 +457,37 @@
     </q-card>
 
     <q-dialog v-model="isShowExceedData">
-      <q-card style="background-color:#202541;color:white;max-width:360px;width:100%">
+      <q-card
+        style="background-color: #202541; color: white; max-width: 360px; width: 100%"
+      >
         <q-card-section>
-          <div align="center" style="font-size:24px">{{ activeExceedDataLabel }}</div>
+          <div align="center" style="font-size: 24px">{{ activeExceedDataLabel }}</div>
 
-          <table style="width:100%;border-collapse:collapse">
+          <table style="width: 100%; border-collapse: collapse">
             <tr>
               <td class="q-pa-sm">Date</td>
               <td class="q-pa-sm">Type</td>
               <td class="q-pa-sm">Value</td>
             </tr>
             <tr
-              v-for="(item,index) in exceedData"
+              v-for="(item, index) in exceedData"
               :key="index"
               :style="index % 2 == 0 ? 'background-color:#202A65' : null"
             >
               <td class="q-pa-sm">{{ item.convertedDate }}</td>
               <td class="q-pa-sm">
-                <div v-if="activeMenu == 1">
+                <div v-if="activeMenu == 'AC'">
                   <!-- AC -->
                   <span v-if="item.AC01_x > acLimitationX">Acc-x</span>
                   <span v-if="item.AC01_y > acLimitationY">Acc-y</span>
                   <span v-if="item.AC01_z > acLimitationZ">Acc-z</span>
                 </div>
-                <div v-else-if="activeMenu == 2">
+                <div v-else-if="activeMenu == 'TM'">
                   <!-- TM -->
                   <span v-if="item.max_TM01_x > tmLimitationX">Tilt-X</span>
                   <span v-if="item.max_TM01_y > tmLimitationY">Tilt-Y</span>
                 </div>
-                <div v-else-if="activeMenu == 3">
+                <div v-else-if="activeMenu == 'SG'">
                   <!-- SG -->
                   <span v-if="item.max_SG01 > sgLimitation1">SG01</span>
                   <span v-else-if="item.max_SG02 > sgLimitation2">SG02</span>
@@ -416,41 +495,65 @@
                 </div>
               </td>
               <td class="q-pa-sm">
-                <div v-if="activeMenu == 1">
+                <div v-if="activeMenu == 'AC'">
                   <!-- AC -->
-                  <span v-if="item.AC01_x > acLimitationX">{{ item.AC01_x.toFixed(2) }}</span>
-                  <span v-if="item.AC01_y > acLimitationY">{{ item.AC01_y.toFixed(2) }}</span>
-                  <span v-if="item.AC01_z > acLimitationZ">{{ item.AC01_z.toFixed(2) }}</span>
+                  <span v-if="item.AC01_x > acLimitationX">{{
+                    item.AC01_x.toFixed(2)
+                  }}</span>
+                  <span v-if="item.AC01_y > acLimitationY">{{
+                    item.AC01_y.toFixed(2)
+                  }}</span>
+                  <span v-if="item.AC01_z > acLimitationZ">{{
+                    item.AC01_z.toFixed(2)
+                  }}</span>
                 </div>
 
-                <div v-else-if="activeMenu == 2">
+                <div v-else-if="activeMenu == 'TM'">
                   <!-- TM -->
-                  <span v-if="item.max_TM01_x > tmLimitationX">{{ item.max_TM01_x.toFixed(2) }}</span>
-                  <span v-if="item.max_TM01_y > tmLimitationY">{{ item.max_TM01_y.toFixed(2) }}</span>
+                  <span v-if="item.max_TM01_x > tmLimitationX">{{
+                    item.max_TM01_x.toFixed(2)
+                  }}</span>
+                  <span v-if="item.max_TM01_y > tmLimitationY">{{
+                    item.max_TM01_y.toFixed(2)
+                  }}</span>
                 </div>
-                <div v-else-if="activeMenu == 3">
+                <div v-else-if="activeMenu == 'SG'">
                   <!-- TM -->
-                  <span v-if="item.max_SG01 > sgLimitation1">{{ item.max_SG01.toFixed(2) }}</span>
-                  <span v-else-if="item.max_SG02 > sgLimitation2">{{ item.max_SG02.toFixed(2) }}</span>
-                  <span v-else-if="item.max_SG03 > sgLimitation3">{{ item.max_SG03.toFixed(2) }}</span>
+                  <span v-if="item.max_SG01 > sgLimitation1">{{
+                    item.max_SG01.toFixed(2)
+                  }}</span>
+                  <span v-else-if="item.max_SG02 > sgLimitation2">{{
+                    item.max_SG02.toFixed(2)
+                  }}</span>
+                  <span v-else-if="item.max_SG03 > sgLimitation3">{{
+                    item.max_SG03.toFixed(2)
+                  }}</span>
                 </div>
               </td>
             </tr>
           </table>
         </q-card-section>
         <q-card-actions align="center" class="q-pb-md">
-          <q-btn v-close-popup color="white" text-color="black" style="width:50%" label="Close"></q-btn>
+          <q-btn
+            v-close-popup
+            color="white"
+            text-color="black"
+            style="width: 50%"
+            label="Close"
+          ></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <q-dialog v-model="isShowSettingDialog">
-      <q-card style="background-color:#202541;color:white;max-width:600px;width:100%">
+      <q-card
+        style="background-color: #202541; color: white; max-width: 600px; width: 100%"
+      >
         <q-card-section>
-          <div style="font-size:24px" align="center">Set Display Time Interval</div>
+          <div style="font-size: 24px" align="center">Set Display Time Interval</div>
 
           <div class="flex">
-            <div style="width:150px">
+            <div style="width: 150px">
               <q-radio
                 color="white"
                 keep-color
@@ -462,13 +565,14 @@
           </div>
 
           <div class="flex items-center">
-            <div style="width:40px"></div>Duration
+            <div style="width: 40px"></div>
+            Duration
             <div class="q-pl-md">
               <q-select
                 dense
                 dark
                 filled
-                :options="['24 Hours','48 Hours','72 Hours']"
+                :options="['24 Hours', '48 Hours', '72 Hours']"
                 v-model="durationSelected"
               ></q-select>
             </div>
@@ -479,7 +583,7 @@
           </div>
 
           <div class="flex">
-            <div style="width:150px">
+            <div style="width: 150px">
               <q-radio
                 color="white"
                 keep-color
@@ -497,7 +601,7 @@
                 <div class="col-3">Start Date</div>
                 <div class="col-9">
                   <q-input
-                  :disable="radioSelected == '1'"
+                    :disable="radioSelected == '1'"
                     @click="showStartDateCalendar()"
                     filled
                     dark
@@ -535,8 +639,8 @@
                 <div class="col-3">End Date</div>
                 <div class="col-9">
                   <q-input
-                  :disable="radioSelected == '1'"
-                  @click="isShowEndDateCalendar = true"
+                    :disable="radioSelected == '1'"
+                    @click="isShowEndDateCalendar = true"
                     filled
                     dark
                     dense
@@ -567,7 +671,13 @@
           </div>
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn label="Cancel" v-close-popup no-caps flat style="text-decoration:underline"></q-btn>
+          <q-btn
+            label="Cancel"
+            v-close-popup
+            no-caps
+            flat
+            style="text-decoration: underline"
+          ></q-btn>
           <q-btn label="Apply" color="white" text-color="black" no-caps></q-btn>
         </q-card-actions>
       </q-card>
@@ -575,7 +685,10 @@
 
     <!-- Calendar Start Date -->
     <q-dialog v-model="isShowStartDateCalendar">
-      <q-card align="center" style="background-color:#202541;color:white;max-width:360px;width:100%">
+      <q-card
+        align="center"
+        style="background-color: #202541; color: white; max-width: 360px; width: 100%"
+      >
         <q-card-section align="center">
           <div class="q-gutter-md row items-start justify-center">
             <q-date v-model="startDate" mask="YYYY-MM-DD HH:mm" color="indigo" dark />
@@ -583,15 +696,30 @@
           </div>
         </q-card-section>
         <q-card-actions align="center">
-           <q-btn label="Cancel" v-close-popup no-caps flat style="text-decoration:underline"></q-btn>
-          <q-btn label="Apply" v-close-popup color="white" text-color="black" no-caps></q-btn>
+          <q-btn
+            label="Cancel"
+            v-close-popup
+            no-caps
+            flat
+            style="text-decoration: underline"
+          ></q-btn>
+          <q-btn
+            label="Apply"
+            v-close-popup
+            color="white"
+            text-color="black"
+            no-caps
+          ></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- Calendar End Date -->
     <q-dialog v-model="isShowEndDateCalendar">
-      <q-card align="center" style="background-color:#202541;color:white;max-width:360px;width:100%">
+      <q-card
+        align="center"
+        style="background-color: #202541; color: white; max-width: 360px; width: 100%"
+      >
         <q-card-section align="center">
           <div class="q-gutter-md row items-start justify-center">
             <q-date v-model="endDate" mask="YYYY-MM-DD HH:mm" color="indigo" dark />
@@ -599,8 +727,20 @@
           </div>
         </q-card-section>
         <q-card-actions align="center">
-           <q-btn label="Cancel" v-close-popup no-caps flat style="text-decoration:underline"></q-btn>
-          <q-btn label="Apply" v-close-popup color="white" text-color="black" no-caps></q-btn>
+          <q-btn
+            label="Cancel"
+            v-close-popup
+            no-caps
+            flat
+            style="text-decoration: underline"
+          ></q-btn>
+          <q-btn
+            label="Apply"
+            v-close-popup
+            color="white"
+            text-color="black"
+            no-caps
+          ></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -608,7 +748,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useQuasar } from "quasar";
 import { db } from "src/router";
 const Highcharts = require("highcharts");
@@ -632,9 +772,7 @@ export default {
         activeExceedDataLabel.value = "TM01 - Exceed limit";
 
         let findOverLimitationData = graphData.value.filter(
-          (x) =>
-            x.max_TM01_x > tmLimitationX.value ||
-            x.max_TM01_y > tmLimitationY.value
+          (x) => x.max_TM01_x > tmLimitationX.value || x.max_TM01_y > tmLimitationY.value
         );
         exceedData.value = findOverLimitationData;
       } else if (menu == 3) {
@@ -751,19 +889,78 @@ export default {
     // Quasar
     const $q = useQuasar();
 
-    const monitorSelected = ref("1");
-    const monitorOptions = ref([
-      {
-        value: "1",
-        label: "A1-BHMS",
-      },
-      {
-        value: "2",
-        label: "T1-BHMS",
-      },
-    ]);
+    // Monitor
+    const monitorSelected = ref("");
+    const monitorOptions = ref([]);
+    const monitorList = ref([]);
+    const sensorList = ref([]);
+    const sensorSelected = ref("OA");
 
-    const activeMenu = ref(0);
+    const loadMonitor = async () => {
+      let getData = await db.collection("CESD_Configs").get();
+
+      let temp = [];
+      let tempList = [];
+
+      getData.forEach((res) => {
+        let newData = { id: res.id, ...res.data() };
+
+        tempList.push(newData);
+        temp.push(res.data().boxCode);
+      });
+
+      temp = [...new Set(temp)];
+
+      temp = temp.map((x, index) => {
+        let newData = { value: x, label: x };
+
+        return newData;
+      });
+
+      monitorOptions.value = temp;
+      monitorSelected.value = temp[0].value;
+
+      monitorList.value = tempList;
+
+      findSensor();
+
+      snapshot();
+    };
+
+    // Selected Sensor
+    const activeMenu = ref("OA");
+
+    const findSensor = () => {
+      let newDataList = [
+        {
+          value: "OA",
+          label: "OverAll",
+        },
+      ];
+
+      if (monitorList.value.length) {
+        let findData = monitorList.value
+          .filter((x) => x.boxCode == monitorSelected.value)
+          .sort((a, b) => (a.sensor > b.sensor ? 1 : -1))
+          .map((x) => {
+            let newData = {
+              value: x.sensor,
+              label: x.sensor,
+            };
+
+            return newData;
+          });
+
+        newDataList.push(...findData);
+
+        sensorList.value = newDataList;
+
+        sensorSelected.value = newDataList[0].value;
+      } else {
+        sensorList.value = [];
+      }
+    };
+
     const changeMenu = (menu) => {
       activeMenu.value = menu;
     };
@@ -780,6 +977,18 @@ export default {
     const acLimitationZ = ref(0.9);
     const acSettings = ref("");
 
+    const ACList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
+    const sensorActive = ref("");
+
+    const loadRanderGraph = () => {
+      activeMenu.value = sensorSelected.value.substring(0, 2);
+      sensorActive.value = sensorSelected.value.substring(3);
+
+      randerGraphAC();
+      randerGraphTM();
+      randerGraphSG();
+    };
+
     // *********************************** GRAPH AC ***********************************
     const randerGraphAC = () => {
       const tickInterval = Math.floor(graphData.value.length / 5);
@@ -788,129 +997,136 @@ export default {
         return Math.random() * 1;
       }
 
-      let dataAccX = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.AC01_x };
-      });
+      for (let i = 0; i < ACList.value.length; i++) {
+        let newSensorX = "AC0" + ACList.value[i] + "_x";
+        let newSensorY = "AC0" + ACList.value[i] + "_y";
+        let newSensorZ = "AC0" + ACList.value[i] + "_z";
 
-      overXAc.value = dataAccX.filter((x) => x.y > acLimitationX.value).length;
+        let dataAccX = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensorX] };
+        });
 
-      let dataAccY = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.AC01_y };
-      });
+        overXAc.value = dataAccX.filter((x) => x.y > acLimitationX.value).length;
 
-      overYAc.value = dataAccY.filter((x) => x.y > acLimitationY.value).length;
+        let dataAccY = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensorY] };
+        });
 
-      let dataAccZ = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.AC01_z };
-      });
-      overZAc.value = dataAccZ.filter((x) => x.y > acLimitationZ.value).length;
+        overYAc.value = dataAccY.filter((x) => x.y > acLimitationY.value).length;
 
-      Highcharts.chart("container", {
-        chart: {
-          type: "spline",
-          height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-        },
-        title: {
-          align: "left",
-          useHTML: true,
-          text:
-            "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-        },
+        let dataAccZ = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensorZ] };
+        });
+        overZAc.value = dataAccZ.filter((x) => x.y > acLimitationZ.value).length;
 
-        xAxis: {
-          type: "category",
-          tickInterval: tickInterval,
-          tickWidth: 1,
-          gridLineWidth: 1,
-        },
-        yAxis: {
-          plotLines: [
-            {
-              color: "green", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: acLimitationX.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "AC01_X limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-            {
-              color: "blue", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: acLimitationY.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "AC01_Y limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-            {
-              color: "red", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: acLimitationZ.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "AC01_Z limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-          ],
+        Highcharts.chart({
+          chart: {
+            renderTo: "container-" + ACList.value[i],
+            type: "spline",
+            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+          },
           title: {
-            text: "Temperature",
-            enabled: false,
+            align: "left",
+            useHTML: true,
+            text:
+              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
           },
-          labels: {
-            formatter: function () {
-              return this.value;
-            },
+
+          xAxis: {
+            type: "category",
+            tickInterval: tickInterval,
+            tickWidth: 1,
+            gridLineWidth: 1,
           },
-        },
-        tooltip: {
-          crosshairs: true,
-          shared: true,
-        },
-        plotOptions: {
-          spline: {
-            marker: {
+          yAxis: {
+            plotLines: [
+              {
+                color: "green", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: acLimitationX.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "AC01_X limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+              {
+                color: "blue", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: acLimitationY.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "AC01_Y limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+              {
+                color: "red", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: acLimitationZ.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "AC01_Z limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+            ],
+            title: {
+              text: "Temperature",
               enabled: false,
             },
+            labels: {
+              formatter: function () {
+                return this.value;
+              },
+            },
           },
-        },
+          tooltip: {
+            crosshairs: true,
+            shared: true,
+          },
+          plotOptions: {
+            spline: {
+              marker: {
+                enabled: false,
+              },
+            },
+          },
 
-        series: [
-          {
-            name: "ACC-X",
-            data: dataAccX,
-            color: "green",
-            showInLegend: true,
-          },
-          {
-            name: "ACC-Y",
-            data: dataAccY,
-            color: "blue",
-            showInLegend: true,
-          },
-          {
-            name: "ACC-Z",
-            data: dataAccZ,
-            color: "red",
-            showInLegend: true,
-          },
-        ],
-      });
+          series: [
+            {
+              name: "ACC-X",
+              data: dataAccX,
+              color: "green",
+              showInLegend: true,
+            },
+            {
+              name: "ACC-Y",
+              data: dataAccY,
+              color: "blue",
+              showInLegend: true,
+            },
+            {
+              name: "ACC-Z",
+              data: dataAccZ,
+              color: "red",
+              showInLegend: true,
+            },
+          ],
+        });
+      }
     };
 
     // *********************************** GRAPH TM ***********************************
@@ -920,106 +1136,115 @@ export default {
     const tmLimitationX = ref(0.25);
     const tmLimitationY = ref(0.23);
     const tmSettings = ref("");
+
+    const TMList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
+
     const randerGraphTM = () => {
       function randomValue() {
         return Math.random() * 1;
       }
 
-      const tmX = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.max_TM01_x };
-      });
+      for (let i = 0; i < TMList.value.length; i++) {
+        let newSensorX = "max_TM0" + TMList.value[i] + "_x";
+        let newSensorY = "max_TM0" + TMList.value[i] + "_y";
 
-      overXTm.value = tmX.filter((x) => x.y > tmLimitationX.value).length;
+        const tmX = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensorX] };
+        });
 
-      const tmY = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.max_TM01_y };
-      });
-      overYTm.value = tmY.filter((x) => x.y > tmLimitationY.value).length;
+        overXTm.value = tmX.filter((x) => x.y > tmLimitationX.value).length;
 
-      Highcharts.chart("containerTM", {
-        chart: {
-          type: "spline",
-          height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-        },
-        title: {
-          align: "left",
-          useHTML: true,
-          text:
-            "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-        },
+        const tmY = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensorY] };
+        });
+        overYTm.value = tmY.filter((x) => x.y > tmLimitationY.value).length;
 
-        xAxis: {
-          type: "category",
-          tickInterval: Math.floor(graphData.value.length / 5),
-          tickWidth: 1,
-          gridLineWidth: 1,
-        },
-        yAxis: {
-          plotLines: [
-            {
-              color: "green", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: tmLimitationX.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "TM01_X limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-            {
-              color: "red", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: tmLimitationY.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "TM01_Y limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-          ],
+        Highcharts.chart({
+          chart: {
+            renderTo: "containerTM-" + TMList.value[i],
+            type: "spline",
+            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+          },
           title: {
-            text: "Temperature",
-            enabled: false,
+            align: "left",
+            useHTML: true,
+            text:
+              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
           },
-          labels: {
-            formatter: function () {
-              return this.value;
-            },
+
+          xAxis: {
+            type: "category",
+            tickInterval: Math.floor(graphData.value.length / 5),
+            tickWidth: 1,
+            gridLineWidth: 1,
           },
-        },
-        tooltip: {
-          crosshairs: true,
-          shared: true,
-        },
-        plotOptions: {
-          spline: {
-            marker: {
+          yAxis: {
+            plotLines: [
+              {
+                color: "green", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: tmLimitationX.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "TM01_X limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+              {
+                color: "red", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: tmLimitationY.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "TM01_Y limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+            ],
+            title: {
+              text: "Temperature",
               enabled: false,
             },
+            labels: {
+              formatter: function () {
+                return this.value;
+              },
+            },
           },
-        },
+          tooltip: {
+            crosshairs: true,
+            shared: true,
+          },
+          plotOptions: {
+            spline: {
+              marker: {
+                enabled: false,
+              },
+            },
+          },
 
-        series: [
-          {
-            name: "TILT-X",
-            data: tmX,
-            color: "green",
-          },
-          {
-            name: "TILT-Y",
-            data: tmY,
-            color: "blue",
-          },
-        ],
-      });
+          series: [
+            {
+              name: "TILT-X",
+              data: tmX,
+              color: "green",
+            },
+            {
+              name: "TILT-Y",
+              data: tmY,
+              color: "blue",
+            },
+          ],
+        });
+      }
     };
 
     // *********************************** GRAPH SG ***********************************
@@ -1032,172 +1257,173 @@ export default {
     const sgLimitation3 = ref(0.3);
     const sgSettings = ref("");
 
+    const SGList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
+
     const randerGraphSG = () => {
       function randomValue() {
         return Math.random() * 1;
       }
 
-      let dataStrain1 = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.max_SG01 };
-      });
+      for (let i = 0; i < SGList.value.length; i++) {
+        let newSensor = "max_SG0" + SGList.value[i];
 
-      overStrain1.value = dataStrain1.filter(
-        (x) => x.y > sgLimitation1.value
-      ).length;
+        let dataStrain1 = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x[newSensor] };
+        });
 
-      let dataStrain2 = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.max_SG02 };
-      });
-      overStrain2.value = dataStrain2.filter(
-        (x) => x.y > sgLimitation2.value
-      ).length;
+        overStrain1.value = dataStrain1.filter((x) => x.y > sgLimitation1.value).length;
 
-      let dataStrain3 = graphData.value.map((x) => {
-        return { name: x.convertedDate, y: x.max_SG03 };
-      });
-      overStrain3.value = dataStrain3.filter(
-        (x) => x.y > sgLimitation3.value
-      ).length;
+        let dataStrain2 = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x.max_SG02 };
+        });
+        overStrain2.value = dataStrain2.filter((x) => x.y > sgLimitation2.value).length;
 
-      Highcharts.chart("containerSG", {
-        chart: {
-          type: "spline",
-          height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-        },
-        title: {
-          align: "left",
-          useHTML: true,
-          text:
-            "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-        },
+        let dataStrain3 = graphData.value.map((x) => {
+          return { name: x.convertedDate, y: x.max_SG03 };
+        });
+        overStrain3.value = dataStrain3.filter((x) => x.y > sgLimitation3.value).length;
 
-        xAxis: {
-          type: "category",
-          tickInterval: Math.floor(graphData.value.length / 5),
-          tickWidth: 1,
-          gridLineWidth: 1,
-        },
-        yAxis: {
-          plotLines: [
-            {
-              color: "green", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: sgLimitation1.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "SG1 limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-            {
-              color: "blue", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: sgLimitation2.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "SG2 limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-            {
-              color: "red", // Color value
-              dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-              value: sgLimitation3.value, // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: "SG3 limitation",
-                align: "right",
-                x: -20,
-                style: {
-                  fontSize: "10px",
-                },
-              },
-            },
-          ],
+        Highcharts.chart({
+          chart: {
+            randerTo: "containerSG-" + SGList.value[i],
+            type: "spline",
+            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+          },
           title: {
-            text: "Temperature",
-            enabled: false,
+            align: "left",
+            useHTML: true,
+            text:
+              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
           },
-          labels: {
-            formatter: function () {
-              return this.value;
-            },
+
+          xAxis: {
+            type: "category",
+            tickInterval: Math.floor(graphData.value.length / 5),
+            tickWidth: 1,
+            gridLineWidth: 1,
           },
-        },
-        tooltip: {
-          crosshairs: true,
-          shared: true,
-        },
-        plotOptions: {
-          spline: {
-            marker: {
+          yAxis: {
+            plotLines: [
+              {
+                color: "green", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: sgLimitation1.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "SG1 limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+              {
+                color: "blue", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: sgLimitation2.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "SG2 limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+              {
+                color: "red", // Color value
+                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                value: sgLimitation3.value, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: "SG3 limitation",
+                  align: "right",
+                  x: -20,
+                  style: {
+                    fontSize: "10px",
+                  },
+                },
+              },
+            ],
+            title: {
+              text: "Temperature",
               enabled: false,
             },
-            //  pointInterval: 3600000, // one hour
-            // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
+            labels: {
+              formatter: function () {
+                return this.value;
+              },
+            },
           },
-        },
-        series: [
-          {
-            name: "SG01",
-            data: dataStrain1,
-            color: "green",
+          tooltip: {
+            crosshairs: true,
+            shared: true,
           },
-          {
-            name: "SG02",
-            data: dataStrain2,
-            color: "blue",
+          plotOptions: {
+            spline: {
+              marker: {
+                enabled: false,
+              },
+              //  pointInterval: 3600000, // one hour
+              // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
+            },
           },
-          {
-            name: "SG03",
-            data: dataStrain3,
-            color: "red",
-          },
-        ],
-      });
+          series: [
+            {
+              name: "SG01",
+              data: dataStrain1,
+              color: "green",
+            },
+            {
+              name: "SG02",
+              data: dataStrain2,
+              color: "blue",
+            },
+            {
+              name: "SG03",
+              data: dataStrain3,
+              color: "red",
+            },
+          ],
+        });
+      }
     };
 
     const graphData = ref([]);
 
     const isLoadedData = ref(false);
 
-    const snapshot = db.collection("CESD").onSnapshot((doc) => {
-      $q.loading.show();
+    const snapshot = () => {
+      db.collection("CESD").onSnapshot((doc) => {
+        $q.loading.show();
 
-      let currentTime = new Date().getTime();
-      let timeBefore24Hrs = 24 * 3600 * 1000;
+        let currentTime = new Date().getTime();
+        let timeBefore24Hrs = 24 * 3600 * 1000;
 
-      let time24HrAgo = (currentTime - timeBefore24Hrs) / 1000;
+        let time24HrAgo = (currentTime - timeBefore24Hrs) / 1000;
 
-      let temp = [];
-      doc.forEach((element) => {
-        // if(element.data().createdTime.seconds > time24HrAgo)
-        // {
-        //   console.log(element.data());
-        // }
-        // console.log(element.data().createdTime.seconds);
-        let convertedDate = timeConverter(element.data().createdTime.seconds);
+        let temp = [];
+        doc.forEach((element) => {
+          // if(element.data().createdTime.seconds > time24HrAgo)
+          // {
+          //   console.log(element.data());
+          // }
+          // console.log(element.data().createdTime.seconds);
+          let convertedDate = timeConverter(element.data().createdTime.seconds);
 
-        temp.push({ ...element.data(), convertedDate: convertedDate });
-        // }
+          temp.push({ ...element.data(), convertedDate: convertedDate });
+          // }
+        });
+        temp = temp.sort((a, b) => b.createdTime.seconds - a.createdTime.seconds);
+        graphData.value = temp;
+        isLoadedData.value = true;
+
+        loadRanderGraph();
+        $q.loading.hide();
       });
-      temp = temp.sort((a, b) => b.createdTime.seconds - a.createdTime.seconds);
-      graphData.value = temp;
-      isLoadedData.value = true;
-
-      randerGraphAC();
-      randerGraphTM();
-      randerGraphSG();
-      $q.loading.hide();
-    });
+    };
 
     function timeConverter(UNIX_timestamp) {
       var a = new Date(UNIX_timestamp * 1000);
@@ -1253,6 +1479,9 @@ export default {
 
     const endDate = ref("");
 
+    // Mounted
+    onMounted(loadMonitor);
+
     return {
       isShowSettingDialog,
       isLoadedData,
@@ -1298,6 +1527,14 @@ export default {
       isShowStartDateCalendar,
       startDate,
       endDate,
+      sensorList,
+      sensorSelected,
+      findSensor,
+      loadRanderGraph,
+      ACList,
+      TMList,
+      SGList,
+      sensorActive,
     };
   },
 };

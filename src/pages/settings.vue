@@ -99,25 +99,15 @@ export default {
 
       let res = await axios.post(url, postData);
       const token = res.data;
-
       firebase
         .auth()
         .signInWithCustomToken(token)
         .then(function (response) {
-          console.log("signed in");
+          router.push("/boxSettings");
         })
         .catch(function (error) {
           console.log(error);
         });
-
-      // db.collection("CESD_Accounts")
-      //   .where("username", "==", username.value)
-      //   .where("password", "==", password.value)
-      //   .get()
-      //   .then((doc) => {
-      //     if (doc.size) {
-      //     }
-      //   });
     };
 
     return { username, password, login };

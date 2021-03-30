@@ -50,7 +50,7 @@
           clickable
           @click="toSettings()"
           active-class="active-item"
-          :active="$route.name == 'settings'"
+          :active="$route.name == 'settings' || $route.name == 'boxSettings'"
         >
           <div align="center " style="width: 100%">
             <q-icon

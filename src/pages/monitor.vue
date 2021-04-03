@@ -28,38 +28,6 @@
           @update:model-value="loadRanderGraph()"
         >
         </q-select>
-        <!-- <q-btn
-          @click="changeMenu('OA')"
-          dense
-          label="Overall"
-          class="text-white q-px-sm"
-          :class="activeMenu == 'OA' ? 'bg-teal' : 'bg-blue-main'"
-          no-caps
-        ></q-btn>
-        <q-btn
-          @click="changeMenu('AC')"
-          dense
-          label="AC01"
-          class="text-white q-px-sm"
-          :class="activeMenu == 'AC' ? 'bg-teal' : 'bg-blue-main'"
-          no-caps
-        ></q-btn>
-        <q-btn
-          @click="changeMenu('TM')"
-          dense
-          label="TM01"
-          class="text-white q-px-sm"
-          :class="activeMenu == 'TM' ? 'bg-teal' : 'bg-blue-main'"
-          no-caps
-        ></q-btn>
-        <q-btn
-          @click="changeMenu('SG')"
-          dense
-          label="SG"
-          class="text-white q-px-sm"
-          :class="activeMenu == 'SG' ? 'bg-teal' : 'bg-blue-main'"
-          no-caps
-        ></q-btn> -->
         <q-btn
           v-if="isLoadedData"
           dense
@@ -86,7 +54,10 @@
           class="row"
           :class="{ 'q-pb-lg': $q.platform.is.desktop }"
           v-for="(item, index) in ACList"
-          v-show="activeMenu == 'OA' || (activeMenu == 'AC' && sensorActive == item)"
+          v-show="
+            (activeMenu == 'OA' || (activeMenu == 'AC' && sensorActive == item)) &&
+            !acGraphToHide.includes('containerAC-' + item)
+          "
         >
           <!-- ด้านซ้าย -->
           <div class="col-md self-start col-xs-12">
@@ -218,7 +189,10 @@
           class="row"
           :class="{ 'q-pb-lg': $q.platform.is.desktop }"
           v-for="(item, index) in TMList"
-          v-show="activeMenu == 'OA' || (activeMenu == 'TM' && sensorActive == item)"
+          v-show="
+            (activeMenu == 'OA' || (activeMenu == 'TM' && sensorActive == item)) &&
+            !tmGraphToHide.includes('containerTM-' + item)
+          "
         >
           <div class="col-md col-xs-12">
             <div class="row q-pb-md">
@@ -335,7 +309,10 @@
           class="row"
           :class="{ 'q-pb-lg': $q.platform.is.desktop }"
           v-for="(item, index) in SGList"
-          v-show="activeMenu == 'OA' || (activeMenu == 'SG' && sensorActive == item)"
+          v-show="
+            (activeMenu == 'OA' || (activeMenu == 'SG' && sensorActive == item)) &&
+            !sgGraphToHide.includes(`containerSG-${item}`)
+          "
         >
           <div class="col-md col-xs-12">
             <div class="row q-pb-md">
@@ -618,18 +595,6 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="col-6">
-              <div class="row items-center q-pa-sm">
-                <div class="col-3">Start time</div>
-                <div class="col-9">
-                  <q-input filled="" dark dense color="grey-3" label-color="orange" outlined v-model="text">
-                    <template v-slot:append>
-                      <q-icon name="alarm" color="orange" />
-                    </template>
-                  </q-input>
-                </div>
-              </div>
-            </div>-->
           </div>
 
           <!-- End Date // End Time -->
@@ -656,18 +621,6 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="col-6">
-              <div class="row items-center q-pa-sm">
-                <div class="col-3">End time</div>
-                <div class="col-9">
-                  <q-input filled="" dark dense color="grey-3" label-color="orange" outlined v-model="text">
-                    <template v-slot:append>
-                      <q-icon name="alarm" color="orange" />
-                    </template>
-                  </q-input>
-                </div>
-              </div>
-            </div>-->
           </div>
         </q-card-section>
         <q-card-actions align="center">
@@ -895,6 +848,7 @@ export default {
     const monitorList = ref([]);
     const sensorList = ref([]);
     const sensorSelected = ref("OA");
+    const collectionName = ref("");
 
     const loadMonitor = async () => {
       let getData = await db.collection("CESD_Configs").get();
@@ -921,6 +875,8 @@ export default {
       monitorSelected.value = temp[0].value;
 
       monitorList.value = tempList;
+      // console.log(monitorSelected.value);
+      collectionName.value = monitorSelected.value;
 
       findSensor();
 
@@ -990,142 +946,166 @@ export default {
     };
 
     // *********************************** GRAPH AC ***********************************
+    const acGraphToHide = ref([]);
     const randerGraphAC = () => {
       const tickInterval = Math.floor(graphData.value.length / 5);
-
-      function randomValue() {
-        return Math.random() * 1;
-      }
 
       for (let i = 0; i < ACList.value.length; i++) {
         let newSensorX = "AC0" + ACList.value[i] + "_x";
         let newSensorY = "AC0" + ACList.value[i] + "_y";
         let newSensorZ = "AC0" + ACList.value[i] + "_z";
 
-        let dataAccX = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensorX] };
-        });
+        let dataAccX = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensorX],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
+
+        const checkDataExists = dataAccX.filter((x) => x.y).length;
 
         overXAc.value = dataAccX.filter((x) => x.y > acLimitationX.value).length;
 
-        let dataAccY = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensorY] };
-        });
+        let dataAccY = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensorY],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
 
         overYAc.value = dataAccY.filter((x) => x.y > acLimitationY.value).length;
 
-        let dataAccZ = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensorZ] };
-        });
+        let dataAccZ = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensorZ],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
         overZAc.value = dataAccZ.filter((x) => x.y > acLimitationZ.value).length;
 
-        Highcharts.chart({
-          chart: {
-            renderTo: "container-" + ACList.value[i],
-            type: "spline",
-            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-          },
-          title: {
-            align: "left",
-            useHTML: true,
-            text:
-              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-          },
-
-          xAxis: {
-            type: "category",
-            tickInterval: tickInterval,
-            tickWidth: 1,
-            gridLineWidth: 1,
-          },
-          yAxis: {
-            plotLines: [
-              {
-                color: "green", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: acLimitationX.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "AC01_X limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-              {
-                color: "blue", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: acLimitationY.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "AC01_Y limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-              {
-                color: "red", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: acLimitationZ.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "AC01_Z limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-            ],
+        if (checkDataExists) {
+          Highcharts.chart({
+            chart: {
+              renderTo: "container-" + ACList.value[i],
+              type: "spline",
+              height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+            },
             title: {
-              text: "Temperature",
-              enabled: false,
+              align: "left",
+              useHTML: true,
+              text:
+                "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
             },
-            labels: {
-              formatter: function () {
-                return this.value;
-              },
+
+            xAxis: {
+              type: "category",
+              tickInterval: tickInterval,
+              tickWidth: 1,
+              gridLineWidth: 1,
             },
-          },
-          tooltip: {
-            crosshairs: true,
-            shared: true,
-          },
-          plotOptions: {
-            spline: {
-              marker: {
+            yAxis: {
+              plotLines: [
+                {
+                  color: "green", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: acLimitationX.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "AC01_X limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+                {
+                  color: "blue", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: acLimitationY.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "AC01_Y limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+                {
+                  color: "red", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: acLimitationZ.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "AC01_Z limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+              ],
+              title: {
+                text: "Temperature",
                 enabled: false,
               },
+              labels: {
+                formatter: function () {
+                  return this.value;
+                },
+              },
             },
-          },
+            tooltip: {
+              crosshairs: true,
+              shared: true,
+            },
+            plotOptions: {
+              spline: {
+                marker: {
+                  enabled: false,
+                },
+              },
+            },
 
-          series: [
-            {
-              name: "ACC-X",
-              data: dataAccX,
-              color: "green",
-              showInLegend: true,
-            },
-            {
-              name: "ACC-Y",
-              data: dataAccY,
-              color: "blue",
-              showInLegend: true,
-            },
-            {
-              name: "ACC-Z",
-              data: dataAccZ,
-              color: "red",
-              showInLegend: true,
-            },
-          ],
-        });
+            series: [
+              {
+                name: "ACC-X",
+                data: dataAccX,
+                color: "green",
+                showInLegend: true,
+              },
+              {
+                name: "ACC-Y",
+                data: dataAccY,
+                color: "blue",
+                showInLegend: true,
+              },
+              {
+                name: "ACC-Z",
+                data: dataAccZ,
+                color: "red",
+                showInLegend: true,
+              },
+            ],
+          });
+        } else {
+          let containerName = "containerAC-" + ACList.value[i];
+          acGraphToHide.value.push(containerName);
+
+          // console.log(containerName);
+        }
       }
     };
 
@@ -1139,6 +1119,7 @@ export default {
 
     const TMList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
 
+    const tmGraphToHide = ref([]);
     const randerGraphTM = () => {
       function randomValue() {
         return Math.random() * 1;
@@ -1148,102 +1129,120 @@ export default {
         let newSensorX = "max_TM0" + TMList.value[i] + "_x";
         let newSensorY = "max_TM0" + TMList.value[i] + "_y";
 
-        const tmX = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensorX] };
-        });
+        const tmX = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensorX],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
 
         overXTm.value = tmX.filter((x) => x.y > tmLimitationX.value).length;
 
-        const tmY = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensorY] };
-        });
+        const tmY = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensorY],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
         overYTm.value = tmY.filter((x) => x.y > tmLimitationY.value).length;
 
-        Highcharts.chart({
-          chart: {
-            renderTo: "containerTM-" + TMList.value[i],
-            type: "spline",
-            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-          },
-          title: {
-            align: "left",
-            useHTML: true,
-            text:
-              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-          },
+        const checkDataExists = tmX.filter((x) => x.y).length;
 
-          xAxis: {
-            type: "category",
-            tickInterval: Math.floor(graphData.value.length / 5),
-            tickWidth: 1,
-            gridLineWidth: 1,
-          },
-          yAxis: {
-            plotLines: [
-              {
-                color: "green", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: tmLimitationX.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "TM01_X limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-              {
-                color: "red", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: tmLimitationY.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "TM01_Y limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-            ],
+        if (checkDataExists) {
+          Highcharts.chart({
+            chart: {
+              renderTo: "containerTM-" + TMList.value[i],
+              type: "spline",
+              height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+            },
             title: {
-              text: "Temperature",
-              enabled: false,
+              align: "left",
+              useHTML: true,
+              text:
+                "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
             },
-            labels: {
-              formatter: function () {
-                return this.value;
-              },
+
+            xAxis: {
+              type: "category",
+              tickInterval: Math.floor(graphData.value.length / 5),
+              tickWidth: 1,
+              gridLineWidth: 1,
             },
-          },
-          tooltip: {
-            crosshairs: true,
-            shared: true,
-          },
-          plotOptions: {
-            spline: {
-              marker: {
+            yAxis: {
+              plotLines: [
+                {
+                  color: "green", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: tmLimitationX.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "TM01_X limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+                {
+                  color: "red", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: tmLimitationY.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "TM01_Y limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+              ],
+              title: {
+                text: "Temperature",
                 enabled: false,
               },
+              labels: {
+                formatter: function () {
+                  return this.value;
+                },
+              },
             },
-          },
+            tooltip: {
+              crosshairs: true,
+              shared: true,
+            },
+            plotOptions: {
+              spline: {
+                marker: {
+                  enabled: false,
+                },
+              },
+            },
 
-          series: [
-            {
-              name: "TILT-X",
-              data: tmX,
-              color: "green",
-            },
-            {
-              name: "TILT-Y",
-              data: tmY,
-              color: "blue",
-            },
-          ],
-        });
+            series: [
+              {
+                name: "TILT-X",
+                data: tmX,
+                color: "green",
+              },
+              {
+                name: "TILT-Y",
+                data: tmY,
+                color: "blue",
+              },
+            ],
+          });
+        } else {
+          tmGraphToHide.value.push("containerTM-" + TMList.value[i]);
+        }
       }
     };
 
@@ -1259,6 +1258,8 @@ export default {
 
     const SGList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
 
+    const sgGraphToHide = ref([]);
+
     const randerGraphSG = () => {
       function randomValue() {
         return Math.random() * 1;
@@ -1267,127 +1268,121 @@ export default {
       for (let i = 0; i < SGList.value.length; i++) {
         let newSensor = "max_SG0" + SGList.value[i];
 
-        let dataStrain1 = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x[newSensor] };
-        });
+        let dataStrain = graphData.value
+          .map((x) => {
+            return {
+              name: x.convertedDate,
+              y: x[newSensor],
+              timestamp: x.createdTime.seconds,
+            };
+          })
+          .sort((a, b) => a.timestamp - b.timestamp);
 
-        overStrain1.value = dataStrain1.filter((x) => x.y > sgLimitation1.value).length;
+        overStrain1.value = dataStrain.filter((x) => x.y > sgLimitation1.value).length;
 
-        let dataStrain2 = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x.max_SG02 };
-        });
-        overStrain2.value = dataStrain2.filter((x) => x.y > sgLimitation2.value).length;
+        const checkDataExists = dataStrain.filter((x) => x.y).length;
 
-        let dataStrain3 = graphData.value.map((x) => {
-          return { name: x.convertedDate, y: x.max_SG03 };
-        });
-        overStrain3.value = dataStrain3.filter((x) => x.y > sgLimitation3.value).length;
+        console.log(checkDataExists);
 
-        Highcharts.chart({
-          chart: {
-            randerTo: "containerSG-" + SGList.value[i],
-            type: "spline",
-            height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
-          },
-          title: {
-            align: "left",
-            useHTML: true,
-            text:
-              "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
-          },
-
-          xAxis: {
-            type: "category",
-            tickInterval: Math.floor(graphData.value.length / 5),
-            tickWidth: 1,
-            gridLineWidth: 1,
-          },
-          yAxis: {
-            plotLines: [
-              {
-                color: "green", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: sgLimitation1.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "SG1 limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-              {
-                color: "blue", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: sgLimitation2.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "SG2 limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-              {
-                color: "red", // Color value
-                dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                value: sgLimitation3.value, // Value of where the line will appear
-                width: 2, // Width of the line
-                label: {
-                  text: "SG3 limitation",
-                  align: "right",
-                  x: -20,
-                  style: {
-                    fontSize: "10px",
-                  },
-                },
-              },
-            ],
+        if (checkDataExists) {
+          Highcharts.chart({
+            chart: {
+              randerTo: "containerSG-" + SGList.value[i],
+              type: "spline",
+              height: $q.platform.is.desktop ? "40%" : "100%", // 16:9 ratio
+            },
             title: {
-              text: "Temperature",
-              enabled: false,
+              align: "left",
+              useHTML: true,
+              text:
+                "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
             },
-            labels: {
-              formatter: function () {
-                return this.value;
-              },
+
+            xAxis: {
+              type: "category",
+              tickInterval: Math.floor(graphData.value.length / 5),
+              tickWidth: 1,
+              gridLineWidth: 1,
             },
-          },
-          tooltip: {
-            crosshairs: true,
-            shared: true,
-          },
-          plotOptions: {
-            spline: {
-              marker: {
+            yAxis: {
+              plotLines: [
+                {
+                  color: "green", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: sgLimitation1.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "SG1 limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+                {
+                  color: "blue", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: sgLimitation2.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "SG2 limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+                {
+                  color: "red", // Color value
+                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
+                  value: sgLimitation3.value, // Value of where the line will appear
+                  width: 2, // Width of the line
+                  label: {
+                    text: "SG3 limitation",
+                    align: "right",
+                    x: -20,
+                    style: {
+                      fontSize: "10px",
+                    },
+                  },
+                },
+              ],
+              title: {
+                text: "Temperature",
                 enabled: false,
               },
-              //  pointInterval: 3600000, // one hour
-              // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
+              labels: {
+                formatter: function () {
+                  return this.value;
+                },
+              },
             },
-          },
-          series: [
-            {
-              name: "SG01",
-              data: dataStrain1,
-              color: "green",
+            tooltip: {
+              crosshairs: true,
+              shared: true,
             },
-            {
-              name: "SG02",
-              data: dataStrain2,
-              color: "blue",
+            plotOptions: {
+              spline: {
+                marker: {
+                  enabled: false,
+                },
+                //  pointInterval: 3600000, // one hour
+                // pointStart: Date.UTC(2018, 1, 13, 0, 0, 0)
+              },
             },
-            {
-              name: "SG03",
-              data: dataStrain3,
-              color: "red",
-            },
-          ],
-        });
+            series: [
+              {
+                name: "SG01",
+                data: dataStrain,
+                color: "green",
+              },
+            ],
+          });
+        } else {
+          sgGraphToHide.value.push("containerSG-" + SGList.value[i]);
+        }
       }
     };
 
@@ -1396,7 +1391,7 @@ export default {
     const isLoadedData = ref(false);
 
     const snapshot = () => {
-      db.collection("CESD").onSnapshot((doc) => {
+      db.collection(collectionName.value).onSnapshot((doc) => {
         $q.loading.show();
 
         let currentTime = new Date().getTime();
@@ -1406,15 +1401,14 @@ export default {
 
         let temp = [];
         doc.forEach((element) => {
-          // if(element.data().createdTime.seconds > time24HrAgo)
-          // {
-          //   console.log(element.data());
-          // }
-          // console.log(element.data().createdTime.seconds);
-          let convertedDate = timeConverter(element.data().createdTime.seconds);
+          if (element.data().createdTime.seconds > time24HrAgo) {
+            //   console.log(element.data());
+            // }
+            // console.log(element.data().createdTime.seconds);
+            let convertedDate = timeConverter(element.data().createdTime.seconds);
 
-          temp.push({ ...element.data(), convertedDate: convertedDate });
-          // }
+            temp.push({ ...element.data(), convertedDate: convertedDate });
+          }
         });
         temp = temp.sort((a, b) => b.createdTime.seconds - a.createdTime.seconds);
         graphData.value = temp;
@@ -1535,6 +1529,10 @@ export default {
       TMList,
       SGList,
       sensorActive,
+      acGraphToHide,
+      tmGraphToHide,
+      sgGraphToHide,
+      collectionName,
     };
   },
 };

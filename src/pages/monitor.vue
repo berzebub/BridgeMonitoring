@@ -928,9 +928,9 @@ export default {
     const overZAc = ref(0);
     const exceedAc01 = ref([]);
 
-    const acLimitationX = ref(0.6);
-    const acLimitationY = ref(0.7);
-    const acLimitationZ = ref(0.9);
+    const acLimitationX = ref(0);
+    const acLimitationY = ref(0);
+    const acLimitationZ = ref(0);
     const acSettings = ref("");
 
     const ACList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
@@ -954,6 +954,16 @@ export default {
         let newSensorX = "AC0" + ACList.value[i] + "_x";
         let newSensorY = "AC0" + ACList.value[i] + "_y";
         let newSensorZ = "AC0" + ACList.value[i] + "_z";
+
+        let getLimitation = monitorList.value.filter(
+          (x) => x.sensor == `AC0` + ACList.value[i]
+        );
+
+        if (getLimitation.length) {
+          acLimitationX.value = getLimitation[0].xLimit;
+          acLimitationY.value = getLimitation[0].yLimit;
+          acLimitationZ.value = getLimitation[0].zLimit;
+        }
 
         let dataAccX = graphData.value
           .map((x) => {
@@ -1113,8 +1123,8 @@ export default {
     const overXTm = ref(0);
     const overYTm = ref(0);
     const overZTm = ref(0);
-    const tmLimitationX = ref(0.25);
-    const tmLimitationY = ref(0.23);
+    const tmLimitationX = ref(0);
+    const tmLimitationY = ref(0);
     const tmSettings = ref("");
 
     const TMList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
@@ -1128,6 +1138,15 @@ export default {
       for (let i = 0; i < TMList.value.length; i++) {
         let newSensorX = "max_TM0" + TMList.value[i] + "_x";
         let newSensorY = "max_TM0" + TMList.value[i] + "_y";
+
+        let getLimitation = monitorList.value.filter(
+          (x) => x.sensor == `TM0` + ACList.value[i]
+        );
+
+        if (getLimitation.length) {
+          tmLimitationX.value = getLimitation[0].xLimit;
+          tmLimitationY.value = getLimitation[0].yLimit;
+        }
 
         const tmX = graphData.value
           .map((x) => {
@@ -1533,6 +1552,7 @@ export default {
       tmGraphToHide,
       sgGraphToHide,
       collectionName,
+      monitorList,
     };
   },
 };

@@ -89,6 +89,7 @@ export default {
     const $q = useQuasar();
 
     const login = async () => {
+      $q.loading.show();
       const url = "https://us-central1-bhms-5e304.cloudfunctions.net/bhms/login";
 
       const postData = {
@@ -102,10 +103,12 @@ export default {
         .auth()
         .signInWithCustomToken(token)
         .then(function (response) {
+          $q.loading.hide();
           router.push("/boxSettings");
         })
         .catch(function (error) {
           console.log(error);
+          $q.loading.hide();
         });
     };
 

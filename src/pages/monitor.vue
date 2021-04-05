@@ -80,20 +80,30 @@
             <div class="row" v-if="activeMenu == 'AC'">
               <div class="col">
                 <q-btn
-                  @click="settings(1)"
+                  @click="settings(item - 1, 'AC')"
                   class="bg-white fit q-py-md"
-                  label="Duration : 24 hours"
                   no-caps
                   dense
-                ></q-btn>
+                >
+                  <span v-if="acSettings[item - 1]">
+                    <span v-if="acSettings[item - 1].type == '1'"
+                      >Duration : {{ acSettings[item - 1].durationSelected }}</span
+                    >
+                    <span v-else>
+                      {{ acSettings[item - 1].startDate }} >>
+                      {{ acSettings[item - 1].endDate }}
+                    </span>
+                  </span>
+                  <span v-else> Duration : 24 Hours </span>
+                </q-btn>
               </div>
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn
-                  v-if="overXAc + overYAc + overZAc > 0"
+                  v-if="overXAc[item - 1] + overYAc[item - 1] + overZAc[item - 1] > 0"
                   class="bg-white fit q-py-sm"
                   no-caps
-                  @click="showExceedData(1)"
+                  @click="showExceedData(item - 1, 'AC')"
                   dense
                 >
                   <q-icon
@@ -102,7 +112,7 @@
                   ></q-icon>
                   <span>
                     <span class=""> Excess limit </span>
-                    ({{ overXAc + overYAc + overZAc }})
+                    ({{ overXAc[item - 1] + overYAc[item - 1] + overZAc[item - 1] }})
                   </span>
                 </q-btn>
 
@@ -130,28 +140,28 @@
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
                 </div>
-                <div class="q-pl-md">ACC-X เกิน Limit {{ overXAc }} ครั้ง</div>
+                <div class="q-pl-md">ACC-X เกิน Limit {{ overXAc[item - 1] }} ครั้ง</div>
               </div>
 
               <div class="flex flex-center q-py-sm">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #3c4dae"></div>
                 </div>
-                <div class="q-pl-md">ACC-Y เกิน Limit {{ overYAc }} ครั้ง</div>
+                <div class="q-pl-md">ACC-Y เกิน Limit {{ overYAc[item - 1] }} ครั้ง</div>
               </div>
 
               <div class="flex flex-center">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #ff0000"></div>
                 </div>
-                <div class="q-pl-md">ACC-Z เกิน Limit {{ overZAc }} ครั้ง</div>
+                <div class="q-pl-md">ACC-Z เกิน Limit {{ overZAc[item - 1] }} ครั้ง</div>
               </div>
             </div>
 
             <div v-if="activeMenu == 'AC'" class>
               <q-table
                 :pagination="initialPagination"
-                :rows="graphData"
+                :rows="dataACTable[item - 1]"
                 :columns="colsAc01"
                 row-key="name"
               >
@@ -214,25 +224,37 @@
             <div class="row" v-if="activeMenu == 'TM'">
               <div class="col">
                 <q-btn
-                  @click="settings(2)"
+                  @click="settings(item - 1, 'TM')"
                   class="bg-white fit q-py-md"
-                  label="25/12/2563 6:00  --->  26/12/2563  6:00"
                   no-caps
-                ></q-btn>
+                >
+                  <span v-if="tmSettings[item - 1]">
+                    <span v-if="tmSettings[item - 1].type == '1'"
+                      >Duration : {{ tmSettings[item - 1].durationSelected }}</span
+                    >
+                    <span v-else>
+                      {{ tmSettings[item - 1].startDate }} >>
+                      {{ tmSettings[item - 1].endDate }}
+                    </span>
+                  </span>
+                  <span v-else> Duration : 24 Hours </span>
+                </q-btn>
               </div>
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn
-                  v-if="overXTm + overYTm > 0"
+                  v-if="overXTm[item - 1] + overYTm[item - 1] > 0"
                   class="bg-white fit q-py-sm"
                   no-caps
-                  @click="showExceedData(2)"
+                  @click="showExceedData(item - 1, 'TM')"
                 >
                   <q-icon
                     class="q-mx-sm text-red q-pa-sm"
                     name="fas fa-exclamation-circle"
                   ></q-icon>
-                  <span> Excess limit ({{ overXTm + overYTm }}) </span>
+                  <span>
+                    Excess limit ({{ overXTm[item - 1] + overYTm[item - 1] }})
+                  </span>
                 </q-btn>
 
                 <q-btn v-else class="bg-white fit q-py-sm" no-caps>
@@ -260,21 +282,21 @@
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
                 </div>
-                <div class="q-pl-md">TILT-X เกิน Limit {{ overXTm }} ครั้ง</div>
+                <div class="q-pl-md">TILT-X เกิน Limit {{ overXTm[item - 1] }} ครั้ง</div>
               </div>
 
               <div class="flex flex-center q-py-md">
                 <div style="width: 80px">
                   <div style="width: 70px; height: 4px; background-color: #3c4dae"></div>
                 </div>
-                <div class="q-pl-md">TILT-Y เกิน Limit {{ overYTm }} ครั้ง</div>
+                <div class="q-pl-md">TILT-Y เกิน Limit {{ overYTm[item - 1] }} ครั้ง</div>
               </div>
             </div>
 
             <div v-if="activeMenu == 'TM'" class>
               <q-table
                 :pagination="initialPagination"
-                :rows="graphData"
+                :rows="dataTMTable[item - 1]"
                 :columns="colsTm01"
                 row-key="name"
               >
@@ -334,16 +356,16 @@
             <div class="row" v-if="activeMenu == 'SG'">
               <div class="col">
                 <q-btn
-                  @click="settings(3)"
+                  @click="settings(item - 1, 'SG')"
                   class="bg-white fit q-py-md"
-                  label="25/12/2563 6:00  --->  26/12/2563  6:00"
+                  label="Duration : 24 hours"
                   no-caps
                 ></q-btn>
               </div>
               <div class="col-1" style="width: 5px"></div>
               <div class="col-3">
                 <q-btn
-                  v-if="overStrain1 + overStrain2 + overStrain3 > 0"
+                  v-if="overStrain[item - 1] > 0"
                   class="bg-white fit q-py-sm"
                   no-caps
                   @click="showExceedData(3)"
@@ -352,9 +374,7 @@
                     class="q-mx-sm text-red q-pa-sm"
                     name="fas fa-exclamation-circle"
                   ></q-icon>
-                  <span>
-                    Excess limit ({{ overStrain1 + overStrain2 + overStrain3 }})
-                  </span>
+                  <span> Excess limit ({{ overStrain[item - 1] }}) </span>
                 </q-btn>
                 <q-btn v-else class="bg-white fit q-py-sm" no-caps>
                   <q-icon
@@ -382,23 +402,7 @@
                   <div style="width: 70px; height: 4px; background-color: #82a86a"></div>
                 </div>
                 <div class="q-pl-md" align="left" style="width: 170px">
-                  Strain1 เกิน Limit {{ overStrain1 }} ครั้ง
-                </div>
-              </div>
-              <div class="flex flex-center">
-                <div style="width: 80px">
-                  <div style="width: 70px; height: 4px; background-color: #3c4dae"></div>
-                </div>
-                <div class="q-pl-md" align="left" style="width: 170px">
-                  Strain2 เกิน Limit {{ overStrain2 }} ครั้ง
-                </div>
-              </div>
-              <div class="flex flex-center">
-                <div style="width: 80px">
-                  <div style="width: 70px; height: 4px; background-color: #ff0000"></div>
-                </div>
-                <div class="q-pl-md" align="left" style="width: 170px">
-                  Strain3 เกิน Limit {{ overStrain3 }} ครั้ง
+                  Strain1 เกิน Limit {{ overStrain[item - 1] }} ครั้ง
                 </div>
               </div>
             </div>
@@ -466,9 +470,7 @@
                 </div>
                 <div v-else-if="activeMenu == 'SG'">
                   <!-- SG -->
-                  <span v-if="item.max_SG01 > sgLimitation1">SG01</span>
-                  <span v-else-if="item.max_SG02 > sgLimitation2">SG02</span>
-                  <span v-else-if="item.max_SG03 > sgLimitation3">SG03</span>
+                  <span v-if="item.max_SG01 > sgLimitation">SG01</span>
                 </div>
               </td>
               <td class="q-pa-sm">
@@ -495,15 +497,9 @@
                   }}</span>
                 </div>
                 <div v-else-if="activeMenu == 'SG'">
-                  <!-- TM -->
-                  <span v-if="item.max_SG01 > sgLimitation1">{{
+                  <!-- SG -->
+                  <span v-if="item.max_SG01 > sgLimitation">{{
                     item.max_SG01.toFixed(2)
-                  }}</span>
-                  <span v-else-if="item.max_SG02 > sgLimitation2">{{
-                    item.max_SG02.toFixed(2)
-                  }}</span>
-                  <span v-else-if="item.max_SG03 > sgLimitation3">{{
-                    item.max_SG03.toFixed(2)
                   }}</span>
                 </div>
               </td>
@@ -522,6 +518,7 @@
       </q-card>
     </q-dialog>
 
+    <!-- SETTING DURATION DIALOG -->
     <q-dialog v-model="isShowSettingDialog">
       <q-card
         style="background-color: #202541; color: white; max-width: 600px; width: 100%"
@@ -631,7 +628,13 @@
             flat
             style="text-decoration: underline"
           ></q-btn>
-          <q-btn label="Apply" color="white" text-color="black" no-caps></q-btn>
+          <q-btn
+            label="Apply"
+            @click="saveDurationSettings()"
+            color="white"
+            text-color="black"
+            no-caps
+          ></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -710,36 +713,61 @@ export default {
     const isShowExceedData = ref(false);
     const activeExceedDataLabel = ref("");
     const exceedData = ref([]);
-    const showExceedData = (menu) => {
+    const showExceedData = (index, menu) => {
       exceedData.value = [];
-      if (menu == 1) {
-        activeExceedDataLabel.value = "AC01 - Exceed limit";
-        let findOverLimitationData = graphData.value.filter(
+      if (menu == "TM") {
+        activeExceedDataLabel.value = `TM0${index + 1} - Exceed limit`;
+
+        let fieldX = `max_TM0${index + 1}_x`;
+        let fieldY = `max_TM0${index + 1}_y`;
+
+        let findOverLimitationData = dataTMTable.value[index].filter(
           (x) =>
-            x.AC01_x > acLimitationX.value ||
-            x.AC01_y > acLimitationY.value ||
-            x.AC01_z > acLimitationZ.value
+            x[fieldX] > tmLimitationX.value[index] ||
+            x[fieldY] > tmLimitationY.value[index]
         );
         exceedData.value = findOverLimitationData;
-      } else if (menu == 2) {
-        activeExceedDataLabel.value = "TM01 - Exceed limit";
+      } else if (menu == "AC") {
+        activeExceedDataLabel.value = `AC0${index + 1} - Exceed limit`;
+        let fieldX = `AC0${index + 1}_x`;
+        let fieldY = `AC0${index + 1}_y`;
+        let fieldZ = `AC0${index + 1}_y`;
 
-        let findOverLimitationData = graphData.value.filter(
-          (x) => x.max_TM01_x > tmLimitationX.value || x.max_TM01_y > tmLimitationY.value
-        );
-        exceedData.value = findOverLimitationData;
-      } else if (menu == 3) {
-        activeExceedDataLabel.value = "SG - Exceed limit";
-
-        let findOverLimitationData = graphData.value.filter(
+        let findOverLimitationData = dataTMTable.value[index].filter(
           (x) =>
-            x.max_SG01 > sgLimitation1.value ||
-            x.max_SG02 > sgLimitation2.value ||
-            x.max_SG03 > sgLimitation3.value
+            x[fieldX] > acLimitationX.value[index] ||
+            x[fieldY] > acLimitationY.value[index] ||
+            x[fieldZ] > acLimitationZ.value[index]
         );
         exceedData.value = findOverLimitationData;
       }
+
       isShowExceedData.value = true;
+      // if (menu == 1) {
+      //   activeExceedDataLabel.value = "AC01 - Exceed limit";
+      //   let findOverLimitationData = graphData.value.filter(
+      //     (x) =>
+      //       x.AC01_x > acLimitationX.value ||
+      //       x.AC01_y > acLimitationY.value ||
+      //       x.AC01_z > acLimitationZ.value
+      //   );
+      //   exceedData.value = findOverLimitationData;
+      // } else if (menu == 2) {
+      //   activeExceedDataLabel.value = "TM01 - Exceed limit";
+
+      //   let findOverLimitationData = graphData.value.filter(
+      //     (x) => x.max_TM01_x > tmLimitationX.value || x.max_TM01_y > tmLimitationY.value
+      //   );
+      //   exceedData.value = findOverLimitationData;
+      // } else if (menu == 3) {
+      //   activeExceedDataLabel.value = "SG - Exceed limit";
+
+      //   let findOverLimitationData = graphData.value.filter(
+      //     (x) => x.max_SG01 > sgLimitation.value
+      //   );
+      //   exceedData.value = findOverLimitationData;
+      // }
+      // isShowExceedData.value = true;
     };
     // AC-01
     const colsAc01 = ref([
@@ -923,15 +951,16 @@ export default {
 
     // const overLimit
 
-    const overXAc = ref(0);
-    const overYAc = ref(0);
-    const overZAc = ref(0);
+    const overXAc = ref([]);
+    const overYAc = ref([]);
+    const overZAc = ref([]);
     const exceedAc01 = ref([]);
 
-    const acLimitationX = ref(0);
-    const acLimitationY = ref(0);
-    const acLimitationZ = ref(0);
-    const acSettings = ref("");
+    const acLimitationX = ref([]);
+    const acLimitationY = ref([]);
+    const acLimitationZ = ref([]);
+    const acSettings = ref([]);
+    const dataACTable = ref([]);
 
     const ACList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
     const sensorActive = ref("");
@@ -948,8 +977,6 @@ export default {
     // *********************************** GRAPH AC ***********************************
     const acGraphToHide = ref([]);
     const randerGraphAC = () => {
-      const tickInterval = Math.floor(graphData.value.length / 5);
-
       for (let i = 0; i < ACList.value.length; i++) {
         let newSensorX = "AC0" + ACList.value[i] + "_x";
         let newSensorY = "AC0" + ACList.value[i] + "_y";
@@ -960,12 +987,50 @@ export default {
         );
 
         if (getLimitation.length) {
-          acLimitationX.value = getLimitation[0].xLimit;
-          acLimitationY.value = getLimitation[0].yLimit;
-          acLimitationZ.value = getLimitation[0].zLimit;
+          acLimitationX.value[i] = getLimitation[0].xLimit;
+          acLimitationY.value[i] = getLimitation[0].yLimit;
+          acLimitationZ.value[i] = getLimitation[0].zLimit;
         }
 
-        let dataAccX = graphData.value
+        // FILTER DATA BY START AND END TIME HERE
+        let currentTime = new Date().getTime();
+        let timeBefore24Hrs = 24 * 3600 * 1000;
+
+        let time24HrAgo = (currentTime - timeBefore24Hrs) / 1000;
+
+        let filteredData;
+
+        if (acSettings.value[i]) {
+          // กรณีมีการ setting Duration ของกราฟไว้
+          if (acSettings.value[i].type == "2") {
+            let startTime = new Date(acSettings.value[i].startDate).getTime() / 1000;
+            let endTime = new Date(acSettings.value[i].endDate).getTime() / 1000;
+            filteredData = graphData.value.filter(
+              (x) =>
+                x.createdTime.seconds >= startTime && x.createdTime.seconds <= endTime
+            );
+          } else {
+            let getTime = Number(acSettings.value[i].durationSelected.split(" ")[0]);
+            let timeConfig = getTime * 3600 * 1000;
+
+            let timeResult = (currentTime - timeConfig) / 1000;
+
+            filteredData = graphData.value.filter(
+              (x) => x.createdTime.seconds > timeResult
+            );
+          }
+        } else {
+          // กรณีไม่มีการ setting Duration default to 24 hours before
+          filteredData = graphData.value.filter(
+            (x) => x.createdTime.seconds > time24HrAgo
+          );
+        }
+
+        const tickInterval = Math.floor(filteredData.length / 6);
+
+        dataACTable.value[i] = filteredData;
+
+        let dataAccX = filteredData
           .map((x) => {
             return {
               name: x.convertedDate,
@@ -977,9 +1042,9 @@ export default {
 
         const checkDataExists = dataAccX.filter((x) => x.y).length;
 
-        overXAc.value = dataAccX.filter((x) => x.y > acLimitationX.value).length;
+        overXAc.value[i] = dataAccX.filter((x) => x.y > acLimitationX.value[i]).length;
 
-        let dataAccY = graphData.value
+        let dataAccY = filteredData
           .map((x) => {
             return {
               name: x.convertedDate,
@@ -989,9 +1054,9 @@ export default {
           })
           .sort((a, b) => a.timestamp - b.timestamp);
 
-        overYAc.value = dataAccY.filter((x) => x.y > acLimitationY.value).length;
+        overYAc.value[i] = dataAccY.filter((x) => x.y > acLimitationY.value[i]).length;
 
-        let dataAccZ = graphData.value
+        let dataAccZ = filteredData
           .map((x) => {
             return {
               name: x.convertedDate,
@@ -1000,7 +1065,7 @@ export default {
             };
           })
           .sort((a, b) => a.timestamp - b.timestamp);
-        overZAc.value = dataAccZ.filter((x) => x.y > acLimitationZ.value).length;
+        overZAc.value[i] = dataAccZ.filter((x) => x.y > acLimitationZ.value[i]).length;
 
         if (checkDataExists) {
           Highcharts.chart({
@@ -1027,10 +1092,10 @@ export default {
                 {
                   color: "green", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: acLimitationX.value, // Value of where the line will appear
+                  value: acLimitationX.value[i], // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "AC01_X limitation",
+                    text: "AC_X limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1041,10 +1106,10 @@ export default {
                 {
                   color: "blue", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: acLimitationY.value, // Value of where the line will appear
+                  value: acLimitationY.value[i], // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "AC01_Y limitation",
+                    text: "AC_Y limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1055,10 +1120,10 @@ export default {
                 {
                   color: "red", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: acLimitationZ.value, // Value of where the line will appear
+                  value: acLimitationZ.value[i], // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "AC01_Z limitation",
+                    text: "AC_Z limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1120,12 +1185,13 @@ export default {
     };
 
     // *********************************** GRAPH TM ***********************************
-    const overXTm = ref(0);
-    const overYTm = ref(0);
+    const overXTm = ref([]);
+    const overYTm = ref([]);
     const overZTm = ref(0);
-    const tmLimitationX = ref(0);
-    const tmLimitationY = ref(0);
-    const tmSettings = ref("");
+    const tmLimitationX = ref([]);
+    const tmLimitationY = ref([]);
+    const tmSettings = ref([]);
+    const dataTMTable = ref([]);
 
     const TMList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
 
@@ -1144,11 +1210,49 @@ export default {
         );
 
         if (getLimitation.length) {
-          tmLimitationX.value = getLimitation[0].xLimit;
-          tmLimitationY.value = getLimitation[0].yLimit;
+          tmLimitationX.value[i] = getLimitation[0].xLimit;
+          tmLimitationY.value[i] = getLimitation[0].yLimit;
         }
 
-        const tmX = graphData.value
+        // FILTER DATA BY START AND END TIME HERE
+        let currentTime = new Date().getTime();
+        let timeBefore24Hrs = 24 * 3600 * 1000;
+
+        let time24HrAgo = (currentTime - timeBefore24Hrs) / 1000;
+
+        let filteredData;
+
+        if (tmSettings.value[i]) {
+          // กรณีมีการ setting Duration ของกราฟไว้
+          if (tmSettings.value[i].type == "2") {
+            let startTime = new Date(tmSettings.value[i].startDate).getTime() / 1000;
+            let endTime = new Date(tmSettings.value[i].endDate).getTime() / 1000;
+            filteredData = graphData.value.filter(
+              (x) =>
+                x.createdTime.seconds >= startTime && x.createdTime.seconds <= endTime
+            );
+          } else {
+            let getTime = Number(tmSettings.value[i].durationSelected.split(" ")[0]);
+            let timeConfig = getTime * 3600 * 1000;
+
+            let timeResult = (currentTime - timeConfig) / 1000;
+
+            filteredData = graphData.value.filter(
+              (x) => x.createdTime.seconds > timeResult
+            );
+          }
+        } else {
+          // กรณีไม่มีการ setting Duration default to 24 hours before
+          filteredData = graphData.value.filter(
+            (x) => x.createdTime.seconds > time24HrAgo
+          );
+        }
+
+        const tickInterval = Math.floor(filteredData.length / 6);
+
+        dataTMTable.value[i] = filteredData;
+
+        const tmX = filteredData
           .map((x) => {
             return {
               name: x.convertedDate,
@@ -1158,9 +1262,9 @@ export default {
           })
           .sort((a, b) => a.timestamp - b.timestamp);
 
-        overXTm.value = tmX.filter((x) => x.y > tmLimitationX.value).length;
+        overXTm.value[i] = tmX.filter((x) => x.y > tmLimitationX.value[i]).length;
 
-        const tmY = graphData.value
+        const tmY = filteredData
           .map((x) => {
             return {
               name: x.convertedDate,
@@ -1169,7 +1273,7 @@ export default {
             };
           })
           .sort((a, b) => a.timestamp - b.timestamp);
-        overYTm.value = tmY.filter((x) => x.y > tmLimitationY.value).length;
+        overYTm.value[i] = tmY.filter((x) => x.y > tmLimitationY.value[i]).length;
 
         const checkDataExists = tmX.filter((x) => x.y).length;
 
@@ -1183,13 +1287,12 @@ export default {
             title: {
               align: "left",
               useHTML: true,
-              text:
-                "Accelerator (m/s)<span style='font-size:8px;position:absolute;top:-2px'>2</span>",
+              text: "Tilt (mrad)",
             },
 
             xAxis: {
               type: "category",
-              tickInterval: Math.floor(graphData.value.length / 5),
+              tickInterval: Math.floor(filteredData.length / 6),
               tickWidth: 1,
               gridLineWidth: 1,
             },
@@ -1198,10 +1301,10 @@ export default {
                 {
                   color: "green", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: tmLimitationX.value, // Value of where the line will appear
+                  value: tmLimitationX.value[i], // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "TM01_X limitation",
+                    text: "TM_X limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1212,10 +1315,10 @@ export default {
                 {
                   color: "red", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: tmLimitationY.value, // Value of where the line will appear
+                  value: tmLimitationY.value[i], // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "TM01_Y limitation",
+                    text: "TM_Y limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1267,18 +1370,11 @@ export default {
 
     // *********************************** GRAPH SG ***********************************
 
-    const overStrain1 = ref(0);
-    const overStrain2 = ref(0);
-    const overStrain3 = ref(0);
-    const sgLimitation1 = ref(0.5);
-    const sgLimitation2 = ref(0.4);
-    const sgLimitation3 = ref(0.3);
-    const sgSettings = ref("");
-
+    const overStrain = ref([]);
+    const sgLimitation = ref([]);
+    const sgSettings = ref([]);
     const SGList = ref([1, 2, 3, 4, 5, 6, 7, 8]);
-
     const sgGraphToHide = ref([]);
-
     const randerGraphSG = () => {
       function randomValue() {
         return Math.random() * 1;
@@ -1286,6 +1382,14 @@ export default {
 
       for (let i = 0; i < SGList.value.length; i++) {
         let newSensor = "max_SG0" + SGList.value[i];
+
+        let getLimitation = monitorList.value.filter(
+          (x) => x.sensor == `SG0` + ACList.value[i]
+        );
+
+        if (getLimitation.length) {
+          sgLimitation.value[i] = getLimitation[0].limit;
+        }
 
         let dataStrain = graphData.value
           .map((x) => {
@@ -1297,11 +1401,11 @@ export default {
           })
           .sort((a, b) => a.timestamp - b.timestamp);
 
-        overStrain1.value = dataStrain.filter((x) => x.y > sgLimitation1.value).length;
+        overStrain.value[i] = dataStrain.filter(
+          (x) => x.y > sgLimitation.value[i]
+        ).length;
 
         const checkDataExists = dataStrain.filter((x) => x.y).length;
-
-        console.log(checkDataExists);
 
         if (checkDataExists) {
           Highcharts.chart({
@@ -1328,38 +1432,10 @@ export default {
                 {
                   color: "green", // Color value
                   dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: sgLimitation1.value, // Value of where the line will appear
+                  value: sgLimitation.value, // Value of where the line will appear
                   width: 2, // Width of the line
                   label: {
-                    text: "SG1 limitation",
-                    align: "right",
-                    x: -20,
-                    style: {
-                      fontSize: "10px",
-                    },
-                  },
-                },
-                {
-                  color: "blue", // Color value
-                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: sgLimitation2.value, // Value of where the line will appear
-                  width: 2, // Width of the line
-                  label: {
-                    text: "SG2 limitation",
-                    align: "right",
-                    x: -20,
-                    style: {
-                      fontSize: "10px",
-                    },
-                  },
-                },
-                {
-                  color: "red", // Color value
-                  dashStyle: "LongDashDotDot", // Style of the plot line. Default to solid
-                  value: sgLimitation3.value, // Value of where the line will appear
-                  width: 2, // Width of the line
-                  label: {
-                    text: "SG3 limitation",
+                    text: "SG limitation",
                     align: "right",
                     x: -20,
                     style: {
@@ -1420,14 +1496,14 @@ export default {
 
         let temp = [];
         doc.forEach((element) => {
-          if (element.data().createdTime.seconds > time24HrAgo) {
-            //   console.log(element.data());
-            // }
-            // console.log(element.data().createdTime.seconds);
-            let convertedDate = timeConverter(element.data().createdTime.seconds);
+          // if (element.data().createdTime.seconds > time24HrAgo) {
+          //   console.log(element.data());
+          // }
+          // console.log(element.data().createdTime.seconds);
+          let convertedDate = timeConverter(element.data().createdTime.seconds);
 
-            temp.push({ ...element.data(), convertedDate: convertedDate });
-          }
+          temp.push({ ...element.data(), convertedDate: convertedDate });
+          // }
         });
         temp = temp.sort((a, b) => b.createdTime.seconds - a.createdTime.seconds);
         graphData.value = temp;
@@ -1478,8 +1554,46 @@ export default {
     const isShowSettingDialog = ref(false);
     const radioSelected = ref("1");
     const durationSelected = ref("24 Hours");
-    const settings = (menu) => {
+    const currentSettings = {};
+    // SET DURATION
+    const settings = (index, menu) => {
+      currentSettings.menu = menu;
+      currentSettings.index = index;
+
+      // if(menu == 'AC')
+      // {
+      //   acSettings.value[index]
+      // }
       isShowSettingDialog.value = true;
+    };
+
+    // Save Duration Settings
+    const saveDurationSettings = () => {
+      // console.log(currentSettings);
+      if (currentSettings.menu == "AC") {
+        acSettings.value[currentSettings.index] = {
+          type: radioSelected.value,
+          durationSelected: durationSelected.value,
+          startDate: startDate.value,
+          endDate: endDate.value,
+        };
+      } else if (currentSettings.menu == "TM") {
+        tmSettings.value[currentSettings.index] = {
+          type: radioSelected.value,
+          durationSelected: durationSelected.value,
+          startDate: startDate.value,
+          endDate: endDate.value,
+        };
+      } else if (currentSettings.menu == "SG") {
+        sgSettings.value[currentSettings.index] = {
+          type: radioSelected.value,
+          durationSelected: durationSelected.value,
+          startDate: startDate.value,
+          endDate: endDate.value,
+        };
+      }
+
+      loadRanderGraph();
     };
 
     const isShowStartDateCalendar = ref(false);
@@ -1514,9 +1628,7 @@ export default {
       colsSG,
       initialPagination,
       timeConverter,
-      overStrain1,
-      overStrain2,
-      overStrain3,
+      overStrain,
       isShowExceedData,
       activeExceedDataLabel,
       exceedData,
@@ -1526,9 +1638,8 @@ export default {
       acLimitationZ,
       tmLimitationX,
       tmLimitationY,
-      sgLimitation1,
-      sgLimitation2,
-      sgLimitation3,
+      sgLimitation,
+
       acSettings,
       tmSettings,
       sgSettings,
@@ -1553,6 +1664,9 @@ export default {
       sgGraphToHide,
       collectionName,
       monitorList,
+      saveDurationSettings,
+      dataACTable,
+      dataTMTable,
     };
   },
 };
